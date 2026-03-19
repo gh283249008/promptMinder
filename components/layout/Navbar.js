@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { OptimizedImage } from '@/components/ui/optimized-image';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -16,12 +16,47 @@ import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, useUser } 
 import { useLanguage } from '@/contexts/LanguageContext';
 import { TeamSwitcher } from '@/components/team/TeamSwitcher';
 
+const NOTIFICATION_POLL_INTERVAL_MS = 120000;
+const NOTIFICATION_CACHE_TTL_MS = 60000;
+const NOTIFICATION_CACHE_KEY = 'promptminder:notifications:unread-count';
+
+function readCachedUnreadCount() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem(NOTIFICATION_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed.count !== 'number' || typeof parsed.ts !== 'number') {
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeCachedUnreadCount(count) {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(
+      NOTIFICATION_CACHE_KEY,
+      JSON.stringify({
+        count,
+        ts: Date.now(),
+      })
+    );
+  } catch {
+    // Ignore storage errors (privacy mode, quota, etc.)
+  }
+}
+
 export default function Navbar() {
   const pathname = usePathname();
   const showTeamSwitcher = pathname?.startsWith('/prompts');
   const { toggleLanguage, t } = useLanguage();
   const { isSignedIn } = useUser();
   const [unreadCount, setUnreadCount] = useState(0);
+  const inFlightRef = useRef(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -36,33 +71,79 @@ export default function Navbar() {
   useEffect(() => {
     if (!isSignedIn) {
       setUnreadCount(0);
+      inFlightRef.current = null;
+      return;
+    }
+
+    if (pathname?.startsWith('/notifications')) {
       return;
     }
 
     let active = true;
 
-    const loadUnreadCount = async () => {
+    const loadUnreadCount = async ({ force = false } = {}) => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        return;
+      }
+
+      const cached = readCachedUnreadCount();
+      const isCacheFresh = cached && Date.now() - cached.ts < NOTIFICATION_CACHE_TTL_MS;
+      if (!force && isCacheFresh) {
+        setUnreadCount(cached.count);
+        return;
+      }
+
+      if (inFlightRef.current) {
+        return inFlightRef.current;
+      }
+
       try {
-        const response = await fetch('/api/notifications?unread_only=true&page=1&limit=1', {
-          cache: 'no-store',
-        });
+        inFlightRef.current = fetch('/api/notifications?unread_only=true&page=1&limit=1');
+        const response = await inFlightRef.current;
         if (!response.ok) return;
         const payload = await response.json();
         if (active) {
-          setUnreadCount(payload?.unread_count || 0);
+          const nextCount = payload?.unread_count || 0;
+          setUnreadCount(nextCount);
+          writeCachedUnreadCount(nextCount);
         }
       } catch (error) {
         console.error('Failed to load unread notifications:', error);
+      } finally {
+        inFlightRef.current = null;
       }
     };
 
+    const cached = readCachedUnreadCount();
+    if (cached) {
+      setUnreadCount(cached.count);
+    }
+
     loadUnreadCount();
-    const timer = setInterval(loadUnreadCount, 30000);
+    const timer = setInterval(() => {
+      loadUnreadCount();
+    }, NOTIFICATION_POLL_INTERVAL_MS);
+
+    const handleFocus = () => {
+      loadUnreadCount();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        loadUnreadCount();
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       active = false;
       clearInterval(timer);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [isSignedIn]);
+  }, [isSignedIn, pathname]);
 
   const fallbackTranslations = {
     header: {
