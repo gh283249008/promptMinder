@@ -15,40 +15,18 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { TeamSwitcher } from '@/components/team/TeamSwitcher';
+import {
+  NOTIFICATION_CACHE_KEY,
+  NOTIFICATION_UNREAD_COUNT_EVENT,
+  isUnreadCountCacheFresh,
+  readUnreadCountCache,
+  writeUnreadCountCache,
+} from '@/lib/notification-unread-sync';
 
-const NOTIFICATION_POLL_INTERVAL_MS = 120000;
-const NOTIFICATION_CACHE_TTL_MS = 60000;
-const NOTIFICATION_CACHE_KEY = 'promptminder:notifications:unread-count';
-
-function readCachedUnreadCount() {
-  if (typeof window === 'undefined') return null;
-  try {
-    const raw = window.localStorage.getItem(NOTIFICATION_CACHE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed.count !== 'number' || typeof parsed.ts !== 'number') {
-      return null;
-    }
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
-function writeCachedUnreadCount(count) {
-  if (typeof window === 'undefined') return;
-  try {
-    window.localStorage.setItem(
-      NOTIFICATION_CACHE_KEY,
-      JSON.stringify({
-        count,
-        ts: Date.now(),
-      })
-    );
-  } catch {
-    // Ignore storage errors (privacy mode, quota, etc.)
-  }
-}
+const NOTIFICATION_ACTIVE_POLL_INTERVAL_MS = 120000;
+const NOTIFICATION_QUIET_POLL_INTERVAL_MS = 600000;
+const NOTIFICATION_CACHE_TTL_MS = 300000;
+const NOTIFICATION_MAX_ERROR_BACKOFF_MS = 1800000;
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -57,6 +35,9 @@ export default function Navbar() {
   const { isSignedIn } = useUser();
   const [unreadCount, setUnreadCount] = useState(0);
   const inFlightRef = useRef(null);
+  const timerRef = useRef(null);
+  const unreadCountRef = useRef(0);
+  const errorBackoffRef = useRef(0);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -69,27 +50,63 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
+    unreadCountRef.current = unreadCount;
+  }, [unreadCount]);
+
+  useEffect(() => {
     if (!isSignedIn) {
       setUnreadCount(0);
+      writeUnreadCountCache(0);
       inFlightRef.current = null;
-      return;
-    }
-
-    if (pathname?.startsWith('/notifications')) {
+      errorBackoffRef.current = 0;
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
       return;
     }
 
     let active = true;
+    const disableBackgroundPolling = pathname?.startsWith('/notifications');
+
+    const clearNextTimer = () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+
+    const scheduleNext = () => {
+      clearNextTimer();
+      if (disableBackgroundPolling) return;
+
+      const baseInterval = unreadCountRef.current > 0
+        ? NOTIFICATION_ACTIVE_POLL_INTERVAL_MS
+        : NOTIFICATION_QUIET_POLL_INTERVAL_MS;
+      const penalty = errorBackoffRef.current || 0;
+      const delay = Math.max(baseInterval, penalty);
+
+      timerRef.current = setTimeout(() => {
+        loadUnreadCount();
+      }, delay);
+    };
 
     const loadUnreadCount = async ({ force = false } = {}) => {
+      if (!active) return;
       if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        scheduleNext();
+        return;
+      }
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        scheduleNext();
         return;
       }
 
-      const cached = readCachedUnreadCount();
-      const isCacheFresh = cached && Date.now() - cached.ts < NOTIFICATION_CACHE_TTL_MS;
-      if (!force && isCacheFresh) {
+      const cached = readUnreadCountCache();
+      if (!force && isUnreadCountCacheFresh(NOTIFICATION_CACHE_TTL_MS) && cached) {
         setUnreadCount(cached.count);
+        unreadCountRef.current = cached.count;
+        scheduleNext();
         return;
       }
 
@@ -105,24 +122,30 @@ export default function Navbar() {
         if (active) {
           const nextCount = payload?.unread_count || 0;
           setUnreadCount(nextCount);
-          writeCachedUnreadCount(nextCount);
+          unreadCountRef.current = nextCount;
+          writeUnreadCountCache(nextCount);
+          errorBackoffRef.current = 0;
         }
       } catch (error) {
         console.error('Failed to load unread notifications:', error);
+        errorBackoffRef.current = errorBackoffRef.current
+          ? Math.min(errorBackoffRef.current * 2, NOTIFICATION_MAX_ERROR_BACKOFF_MS)
+          : NOTIFICATION_QUIET_POLL_INTERVAL_MS;
       } finally {
         inFlightRef.current = null;
+        scheduleNext();
       }
     };
 
-    const cached = readCachedUnreadCount();
+    const cached = readUnreadCountCache();
     if (cached) {
       setUnreadCount(cached.count);
+      unreadCountRef.current = cached.count;
     }
 
-    loadUnreadCount();
-    const timer = setInterval(() => {
+    if (!disableBackgroundPolling) {
       loadUnreadCount();
-    }, NOTIFICATION_POLL_INTERVAL_MS);
+    }
 
     const handleFocus = () => {
       loadUnreadCount();
@@ -134,14 +157,51 @@ export default function Navbar() {
       }
     };
 
-    window.addEventListener('focus', handleFocus);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    const handleOnline = () => {
+      loadUnreadCount({ force: true });
+    };
+
+    const handleUnreadCountSync = (event) => {
+      const nextCount = event?.detail?.count;
+      if (typeof nextCount !== 'number') return;
+      setUnreadCount(nextCount);
+      unreadCountRef.current = nextCount;
+      errorBackoffRef.current = 0;
+      scheduleNext();
+    };
+
+    const handleStorageChange = (event) => {
+      if (event.key !== NOTIFICATION_CACHE_KEY || !event.newValue) return;
+      try {
+        const parsed = JSON.parse(event.newValue);
+        if (typeof parsed?.count !== 'number') return;
+        setUnreadCount(parsed.count);
+        unreadCountRef.current = parsed.count;
+        errorBackoffRef.current = 0;
+        scheduleNext();
+      } catch {
+        // Ignore invalid values
+      }
+    };
+
+    if (!disableBackgroundPolling) {
+      window.addEventListener('focus', handleFocus);
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      window.addEventListener('online', handleOnline);
+    }
+    window.addEventListener(NOTIFICATION_UNREAD_COUNT_EVENT, handleUnreadCountSync);
+    window.addEventListener('storage', handleStorageChange);
 
     return () => {
       active = false;
-      clearInterval(timer);
-      window.removeEventListener('focus', handleFocus);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      clearNextTimer();
+      if (!disableBackgroundPolling) {
+        window.removeEventListener('focus', handleFocus);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        window.removeEventListener('online', handleOnline);
+      }
+      window.removeEventListener(NOTIFICATION_UNREAD_COUNT_EVENT, handleUnreadCountSync);
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, [isSignedIn, pathname]);
 

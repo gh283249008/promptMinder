@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { apiClient } from '@/lib/api-client'
+import { writeUnreadCountCache } from '@/lib/notification-unread-sync'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -38,9 +39,11 @@ export default function NotificationsPage() {
       })
 
       const list = Array.isArray(result?.notifications) ? result.notifications : []
+      const nextUnreadCount = result?.unread_count || 0
       setNotifications((prev) => (replace ? list : [...prev, ...list]))
       setPagination(result?.pagination || { page: nextPage, limit: pagination.limit, totalPages: 1 })
-      setUnreadCount(result?.unread_count || 0)
+      setUnreadCount(nextUnreadCount)
+      writeUnreadCountCache(nextUnreadCount)
     } finally {
       setLoading(false)
     }
@@ -53,13 +56,18 @@ export default function NotificationsPage() {
   const markRead = async (id) => {
     await apiClient.markNotificationRead(id)
     setNotifications((prev) => prev.map((item) => (item.id === id ? { ...item, is_read: true } : item)))
-    setUnreadCount((prev) => Math.max(0, prev - 1))
+    setUnreadCount((prev) => {
+      const nextCount = Math.max(0, prev - 1)
+      writeUnreadCountCache(nextCount)
+      return nextCount
+    })
   }
 
   const markAllRead = async () => {
     await apiClient.markAllNotificationsRead()
     setNotifications((prev) => prev.map((item) => ({ ...item, is_read: true })))
     setUnreadCount(0)
+    writeUnreadCountCache(0)
   }
 
   return (
