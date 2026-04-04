@@ -178,7 +178,7 @@ function ensureTagMutationAllowed({ tag, userId, requestedTeamId }) {
 
 export async function GET(request) {
   try {
-    const userId = await requireUserId()
+    const userId = await requireUserId(request)
     const { teamId, teamService } = await resolveTeamContext(request, userId, {
       requireMembership: false,
       allowMissingTeam: true,
@@ -226,7 +226,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const userId = await requireUserId()
+    const userId = await requireUserId(request)
     const { teamId, teamService } = await resolveTeamContext(request, userId, {
       requireMembership: false,
       allowMissingTeam: true,
@@ -259,7 +259,7 @@ export async function POST(request) {
 
 export async function DELETE(request) {
   try {
-    const userId = await requireUserId()
+    const userId = await requireUserId(request)
     const { teamId: requestedTeamId, teamService } = await resolveTeamContext(request, userId, {
       requireMembership: false,
       allowMissingTeam: true,
@@ -348,7 +348,7 @@ export async function DELETE(request) {
 
 export async function PATCH(request) {
   try {
-    const userId = await requireUserId()
+    const userId = await requireUserId(request)
     const { teamId: requestedTeamId, teamService } = await resolveTeamContext(request, userId, {
       requireMembership: false,
       allowMissingTeam: true,

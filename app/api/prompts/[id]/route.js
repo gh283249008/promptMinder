@@ -27,7 +27,7 @@ function ensureManagerPermission(membership) {
 export async function GET(request, { params }) {
   try {
     const id = await getPromptId(params)
-    const userId = await requireUserId()
+    const userId = await requireUserId(request)
     const { teamId, db, teamService } = await resolveTeamContext(request, userId, {
       requireMembership: false,
       allowMissingTeam: true,
@@ -61,7 +61,7 @@ export async function GET(request, { params }) {
 export async function POST(request, { params }) {
   try {
     const id = await getPromptId(params)
-    const userId = await requireUserId()
+    const userId = await requireUserId(request)
     const { teamId, db, teamService } = await resolveTeamContext(request, userId, {
       requireMembership: false,
       allowMissingTeam: true,
@@ -150,7 +150,7 @@ export async function POST(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     const id = await getPromptId(params)
-    const userId = await requireUserId()
+    const userId = await requireUserId(request)
     const { teamId, db, teamService } = await resolveTeamContext(request, userId, {
       requireMembership: false,
       allowMissingTeam: true,

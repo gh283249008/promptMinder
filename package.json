@@ -2,6 +2,9 @@
   "name": "prompt-manager",
   "version": "0.2.0",
   "private": true,
+  "bin": {
+    "promptminder": "./bin/promptminder.js"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -21,8 +24,12 @@
     "build:optimized": "npm run css:optimize && next build",
     "db:generate": "drizzle-kit generate --config drizzle.config.mjs",
     "db:migrate": "node drizzle/migrate.js",
+    "db:baseline": "node drizzle/migrate.js --baseline",
     "db:push": "drizzle-kit push --config drizzle.config.mjs",
-    "db:studio": "drizzle-kit studio --config drizzle.config.mjs"
+    "db:studio": "drizzle-kit studio --config drizzle.config.mjs",
+    "cli": "node ./bin/promptminder.js",
+    "cli:token": "node ./scripts/create-cli-token.js",
+    "cli:whoami": "node ./scripts/cli-whoami.js"
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.88",
