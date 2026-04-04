@@ -1,0 +1,33 @@
+{
+  "name": "@aircrushin/promptminder-cli",
+  "version": "0.1.1",
+  "description": "PromptMinder CLI for managing prompts, tags, and teams over HTTP APIs.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aircrushin/promptMinder.git",
+    "directory": "packages/promptminder-cli"
+  },
+  "scripts": {},
+  "bin": {
+    "promptminder": "bin/promptminder.js",
+    "promptminder-agent": "bin/promptminder-agent.js"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "promptminder",
+    "cli",
+    "prompt",
+    "ai"
+  ]
+}
