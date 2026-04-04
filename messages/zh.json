@@ -1290,5 +1290,23 @@
       "cancelEdit": "取消",
       "confirmResend": "重新发送"
     }
+  },
+  "cli": {
+    "badge": "开发者工具",
+    "title": "一行命令，控制提示词",
+    "description": "使用 PromptMinder CLI 在终端中无缝管理提示词、标签与团队，轻松集成到任意工作流或 CI/CD 流水线。",
+    "installCommand": "npm install -g @aircrushin/promptminder-cli",
+    "copied": "已复制！",
+    "copyCommand": "复制安装命令",
+    "terminalTitle": "终端",
+    "features": [
+      { "label": "提示词管理", "desc": "增删改查，版本历史一键回溯" },
+      { "label": "标签管理", "desc": "批量创建与整理分类标签" },
+      { "label": "团队协作", "desc": "跨团队共享与权限控制" },
+      { "label": "Agent 集成", "desc": "内置 Agent 模式，驱动自动化任务" }
+    ],
+    "npmLink": "查看 npm 包",
+    "docsLink": "使用文档",
+    "version": "v0.1.2 · MIT 开源"
   }
 }

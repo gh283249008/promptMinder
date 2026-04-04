@@ -95,6 +95,24 @@ const CTASection = dynamic(() => import("@/components/landing/cta-section").then
   )
 });
 
+const CLISection = dynamic(() => import("@/components/landing/cli-section").then(mod => ({ default: mod.CLISection })), {
+  loading: () => (
+    <div className="py-28 bg-slate-950">
+      <div className="container mx-auto px-4">
+        <div className="grid gap-12 lg:grid-cols-2">
+          <div className="space-y-6">
+            <Skeleton className="h-5 w-32 bg-slate-800" />
+            <Skeleton className="h-12 w-full bg-slate-800" />
+            <Skeleton className="h-20 w-full bg-slate-800" />
+            <Skeleton className="h-14 w-full bg-slate-800 rounded-2xl" />
+          </div>
+          <Skeleton className="h-72 w-full bg-slate-800 rounded-2xl" />
+        </div>
+      </div>
+    </div>
+  )
+});
+
 // 移除本地 translations 对象
 // const translations = { en, zh };
 
@@ -114,6 +132,7 @@ export default function Home() {
   const safeT = t || {
     hero: { title: "Prompt Minder", subtitle: "专业的AI提示词管理平台", cta: "开始使用" },
     features: { title: "核心功能", items: [] },
+    cli: { title: "One command to rule your prompts" },
     testimonials: { title: "用户评价", items: [] },
     faq: { title: "常见问题", items: [] },
     cta: { title: "立即开始", description: "免费体验所有功能", button: "免费开始" },
@@ -133,6 +152,9 @@ export default function Home() {
           <FeatureSection t={safeT.features} />
         </Suspense>
         {/* <PricingSection /> */}
+        <Suspense fallback={<div className="py-28 bg-slate-950 flex justify-center"><div className="rounded-full h-6 w-6 border-b-2 border-indigo-400"></div></div>}>
+          <CLISection t={safeT.cli} />
+        </Suspense>
         <Suspense fallback={<div className="py-16 flex justify-center"><div className="rounded-full h-6 w-6 border-b-2 border-primary"></div></div>}>
           <TestimonialSection t={safeT.testimonials} />
         </Suspense>
