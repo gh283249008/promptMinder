@@ -115,6 +115,22 @@ pnpm dev
 
 Visit [http://localhost:3000](http://localhost:3000) to view the application.
 
+## CLI Quick Start
+
+Regular users do not need any admin script to get started. Create a token in the web app:
+
+```text
+https://www.prompt-minder.com/settings/cli-tokens
+```
+
+Then install and use the CLI:
+
+```bash
+npm i -g @aircrushin/promptminder-cli
+promptminder auth login --token pm_xxx
+promptminder team list
+```
+
 ## 📦 Deployment Guide
 
 ### Vercel Deployment

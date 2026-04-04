@@ -2,39 +2,37 @@
 
 This guide covers the shortest safe path for production use and AI agent integration.
 
-## 1. Production setup
+## 1. User setup
 
-Run the database migration in the same environment and against the same `DATABASE_URL` used by the production app:
+Create your CLI token in the web app:
 
-```bash
-pnpm db:migrate
+```text
+https://www.prompt-minder.com/settings/cli-tokens
 ```
 
-Create a dedicated CLI token for the production user or service account:
+Recommended user flow:
 
-```bash
-pnpm cli:token --user <clerkUserId> --name agent-prod
-```
-
-The token is only shown once. Store it in your secret manager.
+1. Sign in to PromptMinder.
+2. Open the CLI token settings page.
+3. Create a token with a descriptive name such as `agent-prod` or `cursor-dev`.
+4. Copy the plain-text token immediately.
+5. Configure `PROMPTMINDER_TOKEN` in the shell where the CLI runs.
 
 ## 2. Agent runtime environment
 
-Set these variables in the environment where the AI agent runs:
+Set this variable in the environment where the AI agent runs:
 
 ```bash
-PROMPTMINDER_BASE_URL=https://your-domain.com
 PROMPTMINDER_TOKEN=pm_xxx
 ```
 
 PowerShell:
 
 ```powershell
-$env:PROMPTMINDER_BASE_URL = "https://your-domain.com"
 $env:PROMPTMINDER_TOKEN = "pm_xxx"
 ```
 
-Do not rely on `auth login` for production agents. Environment variables are simpler and safer.
+The CLI is hard-wired to `https://www.prompt-minder.com`. Do not rely on `auth login` for production agents. Environment variables are simpler and safer.
 
 ## 3. Direct CLI usage
 
@@ -161,7 +159,6 @@ Get-Content .\payload.json -Raw | pnpm cli:agent -- prompt.get --stdin
 - Use one token per agent or integration.
 - Rotate tokens by creating a new token and revoking the old row in `cli_tokens`.
 - Keep `PROMPTMINDER_TOKEN` only in your secret store or process environment.
-- Run token generation only where `DATABASE_URL` points to the production database.
 
 ## 6. Supported agent actions
 
@@ -175,3 +172,23 @@ Get-Content .\payload.json -Raw | pnpm cli:agent -- prompt.get --stdin
 - `tag.create`
 - `tag.update`
 - `tag.delete`
+
+## 7. Admin bootstrap only
+
+Ordinary users can ignore this section.
+
+If you are bootstrapping production before the web UI is available:
+
+1. Run the migration against the production `DATABASE_URL`.
+
+```bash
+pnpm db:migrate
+```
+
+2. Mint a token manually:
+
+```bash
+pnpm cli:token --user <clerkUserId> --name agent-prod
+```
+
+The token is only shown once. Store it in your secret manager.

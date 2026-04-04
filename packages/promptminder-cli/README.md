@@ -8,25 +8,36 @@ PromptMinder command line client for managing prompts, tags, and teams over the 
 npm i -g @aircrushin/promptminder-cli
 ```
 
+## Get a token
+
+Create your token in the web app:
+
+```text
+https://www.prompt-minder.com/settings/cli-tokens
+```
+
+Copy it once and keep it in your shell or secret manager.
+
 ## Environment
 
-Set the API base URL and token in the shell where the CLI runs:
+Set the token in the shell where the CLI runs:
 
 ```bash
-export PROMPTMINDER_BASE_URL=https://your-domain.com
 export PROMPTMINDER_TOKEN=pm_xxx
 ```
 
 PowerShell:
 
 ```powershell
-$env:PROMPTMINDER_BASE_URL = "https://your-domain.com"
 $env:PROMPTMINDER_TOKEN = "pm_xxx"
 ```
+
+The CLI is hard-wired to `https://www.prompt-minder.com`.
 
 ## Usage
 
 ```bash
+promptminder auth login --token pm_xxx
 promptminder help
 promptminder team list
 promptminder prompt list
@@ -49,9 +60,8 @@ promptminder-agent prompt.create --input '{"title":"My Prompt","content":"Hello"
 
 Before publishing:
 
-1. Replace `@your-scope` with your real npm scope in `package.json`.
-2. Login with `npm login`.
-3. Publish from this package directory:
+1. Login with `npm login`.
+2. Publish from this package directory:
 
 ```bash
 cd packages/promptminder-cli

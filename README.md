@@ -115,6 +115,22 @@ pnpm dev
 
 访问 [http://localhost:3000](http://localhost:3000) 查看应用。
 
+## CLI Quick Start
+
+普通用户不需要后台脚本发 token，直接在网页里创建：
+
+```text
+https://www.prompt-minder.com/settings/cli-tokens
+```
+
+然后安装并使用 CLI：
+
+```bash
+npm i -g @aircrushin/promptminder-cli
+promptminder auth login --token pm_xxx
+promptminder team list
+```
+
 ## 📦 部署指南
 
 ### Vercel 部署

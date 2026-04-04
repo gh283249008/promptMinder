@@ -9,6 +9,7 @@ const EXIT_CODES = {
   NETWORK_ERROR: 3,
 };
 
+const DEFAULT_BASE_URL = 'https://www.prompt-minder.com';
 const CONFIG_DIR = path.join(os.homedir(), '.promptminder');
 const CONFIG_PATH = path.join(CONFIG_DIR, 'config.json');
 
@@ -86,7 +87,7 @@ function removeConfigToken() {
 function resolveRuntimeConfig(args) {
   const fileConfig = readConfigFile();
   return {
-    baseUrl: args['base-url'] || process.env.PROMPTMINDER_BASE_URL || fileConfig.baseUrl || null,
+    baseUrl: DEFAULT_BASE_URL,
     token: args.token || process.env.PROMPTMINDER_TOKEN || fileConfig.token || null,
     timeout: Number(args.timeout || 30000),
   };
@@ -158,7 +159,7 @@ function buildHeaders(config, teamId) {
 }
 
 async function requestJson(config, { method = 'GET', endpoint, query = null, body, teamId }) {
-  const baseUrl = requireValue(config.baseUrl, 'Missing base URL. Pass --base-url or set PROMPTMINDER_BASE_URL.');
+  const baseUrl = requireValue(config.baseUrl, 'Missing base URL.');
   const token = requireValue(config.token, 'Missing token. Pass --token or run promptminder auth login.');
   const url = new URL(endpoint, baseUrl);
 
@@ -215,7 +216,7 @@ async function requestJson(config, { method = 'GET', endpoint, query = null, bod
 
 function usage() {
   return `
-promptminder auth login --base-url <url> --token <token>
+promptminder auth login --token <token>
 promptminder auth logout
 promptminder team list
 promptminder prompt list [--team <id>] [--tag <tag>] [--search <text>] [--page <n>] [--limit <n>]
@@ -234,14 +235,13 @@ async function handleAuth(args) {
   const action = args._[1];
 
   if (action === 'login') {
-    const baseUrl = requireValue(args['base-url'], '--base-url is required');
     const token = requireValue(args.token, '--token is required');
-    const tempConfig = { baseUrl, token, timeout: Number(args.timeout || 30000) };
+    const tempConfig = { baseUrl: DEFAULT_BASE_URL, token, timeout: Number(args.timeout || 30000) };
     const validation = await requestJson(tempConfig, { endpoint: '/api/teams' });
-    writeConfigFile({ ...readConfigFile(), baseUrl, token });
+    writeConfigFile({ token });
     printJson({
       success: true,
-      base_url: baseUrl,
+      base_url: DEFAULT_BASE_URL,
       teams: validation?.teams || [],
     });
     return;
