@@ -13,7 +13,7 @@ const DEFAULT_TRANSLATIONS = {
   badge: "Developer Tools",
   title: "One command to rule your prompts",
   description:
-    "Manage prompts, tags, and teams straight from the terminal with PromptMinder CLI. Integrate into any workflow or CI/CD pipeline in seconds.",
+    "Manage prompts straight from the terminal with PromptMinder CLI. Integrate into any workflow or CI/CD pipeline in seconds.",
   installCommand: "npm install -g @aircrushin/promptminder-cli",
   copied: "Copied!",
   copyCommand: "Copy install command",
@@ -51,8 +51,8 @@ const terminalLines = [
   { prompt: "✓", command: "Authenticated successfully", isOutput: true, delay: 0.4 },
   { prompt: "$", command: "promptminder prompts list", delay: 0.8 },
   { prompt: "✓", command: "Fetched 42 prompts", isOutput: true, delay: 1.2 },
-  { prompt: "$", command: "promptminder prompts push ./my-prompt.md", delay: 1.6 },
-  { prompt: "✓", command: "Prompt synced · v3 saved", isOutput: true, delay: 2.0 },
+  { prompt: "$", command: "promptminder prompt create --title \"My Prompt\" --content \"Hello\"", delay: 1.6 },
+  { prompt: "✓", command: "Created prompt · My Prompt", isOutput: true, delay: 2.0 },
 ];
 
 export function CLISection({ t }) {

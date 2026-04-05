@@ -1273,7 +1273,7 @@
   "cli": {
     "badge": "Developer Tools",
     "title": "One command to rule your prompts",
-    "description": "Manage prompts, tags, and teams straight from the terminal with PromptMinder CLI. Integrate into any workflow or CI/CD pipeline in seconds.",
+    "description": "Manage prompts straight from the terminal with PromptMinder CLI. Integrate into any workflow or CI/CD pipeline in seconds.",
     "installCommand": "npm install -g @aircrushin/promptminder-cli",
     "copied": "Copied!",
     "copyCommand": "Copy install command",
