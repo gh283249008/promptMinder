@@ -204,14 +204,6 @@ pnpm db:studio     # Open Drizzle Studio for visual database management
 - Approval permissions: `owner/admin`; review threads support `@mentions`.
 - Prompt-level subscriptions and the Notification Center are available for in-app updates.
 
-### Supabase Storage (File Uploads)
-
-Supabase is used only for file storage (e.g., prompt cover image uploads).
-
-1. Register for a [Supabase](https://supabase.com) account
-2. Create a new project and get the project URL and anonymous key
-3. Create a Storage Bucket in the Supabase console
-
 ## 🔐 Authentication Configuration
 
 ### Clerk Setup

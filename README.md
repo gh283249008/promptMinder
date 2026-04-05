@@ -203,14 +203,6 @@ pnpm db:studio     # 打开 Drizzle Studio 可视化管理数据库
 - 审批权限：`owner/admin`；支持审批单评论与 `@成员` 协作。
 - 支持按提示词订阅变更，并在通知中心查看未读/已读消息。
 
-### Supabase Storage (文件上传)
-
-Supabase 仅用于文件存储功能（如提示词封面图片上传）。
-
-1. 注册 [Supabase](https://supabase.com) 账户
-2. 创建新项目，获取项目 URL 和匿名密钥
-3. 在 Supabase 控制台创建 Storage Bucket
-
 ## 🔐 认证配置
 
 ### Clerk 设置
