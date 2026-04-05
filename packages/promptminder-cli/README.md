@@ -56,6 +56,40 @@ promptminder-agent prompt.get --input '{"id":"prompt-id"}'
 promptminder-agent prompt.create --input '{"title":"My Prompt","content":"Hello"}'
 ```
 
+## Agent Skills
+
+The package ships Agent Skills — reference guides that teach AI coding agents (Cursor, Claude Code, Codex) how to use the CLI correctly. Skills cover auth, team scoping, JSON output handling, the `promptminder-agent` wrapper, and common mistakes.
+
+Install skills into your Cursor user directory (`~/.cursor/skills/`):
+
+```bash
+promptminder skills install
+```
+
+Other targets:
+
+```bash
+promptminder skills install --target cursor-project   # .cursor/skills/ in cwd (team/repo scope)
+promptminder skills install --target claude           # ~/.claude/skills/
+promptminder skills install --target codex            # ~/.agents/skills/
+```
+
+Use `--force` to overwrite an existing installation, `--skill <name>` to install a single skill.
+
+List bundled skills:
+
+```bash
+promptminder skills list
+```
+
+Print the bundled skills directory path:
+
+```bash
+promptminder skills path
+```
+
+Skills follow the [agentskills.io specification](https://agentskills.io/specification).
+
 ## Publish
 
 Before publishing:

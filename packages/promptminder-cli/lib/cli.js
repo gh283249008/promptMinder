@@ -12,6 +12,7 @@ const EXIT_CODES = {
 const DEFAULT_BASE_URL = 'https://www.prompt-minder.com';
 const CONFIG_DIR = path.join(os.homedir(), '.promptminder');
 const CONFIG_PATH = path.join(CONFIG_DIR, 'config.json');
+const BUNDLED_SKILLS_DIR = path.join(__dirname, '..', 'skills');
 
 function printJson(value, stream = process.stdout) {
   stream.write(`${JSON.stringify(value, null, 2)}\n`);
@@ -228,6 +229,9 @@ promptminder tag list [--team <id>] [--include-public <true|false>]
 promptminder tag create --name <text> [--team <id>]
 promptminder tag update <id> --name <text> [--team <id>]
 promptminder tag delete <id> [--team <id>] --yes
+promptminder skills list
+promptminder skills install [--target cursor-user|cursor-project|claude|codex] [--skill <name>] [--force]
+promptminder skills path
 `.trim();
 }
 
@@ -420,6 +424,127 @@ async function handleTag(args, config) {
   fail(`Unknown tag command: ${action || '(missing)'}\n${usage()}`);
 }
 
+// ---------------------------------------------------------------------------
+// Skills helpers
+// ---------------------------------------------------------------------------
+
+function parseFrontmatter(text) {
+  const match = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (!match) return {};
+  const block = match[1];
+  const result = {};
+  for (const line of block.split(/\r?\n/)) {
+    const colonAt = line.indexOf(':');
+    if (colonAt === -1) continue;
+    const key = line.slice(0, colonAt).trim();
+    const value = line.slice(colonAt + 1).trim().replace(/^['"]|['"]$/g, '');
+    result[key] = value;
+  }
+  return result;
+}
+
+function listBundledSkills() {
+  if (!fs.existsSync(BUNDLED_SKILLS_DIR)) {
+    return [];
+  }
+  return fs.readdirSync(BUNDLED_SKILLS_DIR).filter((entry) => {
+    const skillFile = path.join(BUNDLED_SKILLS_DIR, entry, 'SKILL.md');
+    return fs.existsSync(skillFile);
+  });
+}
+
+function resolveTargetDir(target, cwd) {
+  const home = os.homedir();
+  switch (target) {
+    case 'cursor-user': return path.join(home, '.cursor', 'skills');
+    case 'cursor-project': return path.join(cwd || process.cwd(), '.cursor', 'skills');
+    case 'claude': return path.join(home, '.claude', 'skills');
+    case 'codex': return path.join(home, '.agents', 'skills');
+    default: fail(`Unknown --target "${target}". Valid values: cursor-user, cursor-project, claude, codex`);
+  }
+}
+
+function copyDirRecursive(src, dest) {
+  fs.mkdirSync(dest, { recursive: true });
+  for (const entry of fs.readdirSync(src)) {
+    const srcPath = path.join(src, entry);
+    const destPath = path.join(dest, entry);
+    if (fs.statSync(srcPath).isDirectory()) {
+      copyDirRecursive(srcPath, destPath);
+    } else {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+}
+
+function handleSkills(args) {
+  const action = args._[1];
+
+  if (action === 'list') {
+    const skills = listBundledSkills();
+    const items = skills.map((name) => {
+      const skillFile = path.join(BUNDLED_SKILLS_DIR, name, 'SKILL.md');
+      const text = fs.readFileSync(skillFile, 'utf8');
+      const fm = parseFrontmatter(text);
+      return { name, description: fm.description || '' };
+    });
+    printJson({ skills: items });
+    return;
+  }
+
+  if (action === 'install') {
+    const target = args.target || 'cursor-user';
+    const targetDir = resolveTargetDir(target);
+    const skillFilter = args.skill || null;
+    const force = Boolean(args.force);
+
+    const skills = listBundledSkills();
+    if (skills.length === 0) {
+      fail('No bundled skills found', EXIT_CODES.BUSINESS_ERROR);
+    }
+
+    const toInstall = skillFilter
+      ? skills.filter((s) => s === skillFilter)
+      : skills;
+
+    if (toInstall.length === 0) {
+      fail(`Skill "${skillFilter}" not found. Available: ${skills.join(', ')}`, EXIT_CODES.BUSINESS_ERROR);
+    }
+
+    const installed = [];
+    const skipped = [];
+
+    for (const skillName of toInstall) {
+      const src = path.join(BUNDLED_SKILLS_DIR, skillName);
+      const dest = path.join(targetDir, skillName);
+
+      if (fs.existsSync(dest) && !force) {
+        skipped.push(skillName);
+        continue;
+      }
+
+      copyDirRecursive(src, dest);
+      installed.push(skillName);
+    }
+
+    printJson({
+      success: true,
+      target: targetDir,
+      installed,
+      skipped: skipped.length > 0 ? skipped : undefined,
+      hint: skipped.length > 0 ? 'Pass --force to overwrite existing skills.' : undefined,
+    });
+    return;
+  }
+
+  if (action === 'path') {
+    printJson({ skills_dir: BUNDLED_SKILLS_DIR });
+    return;
+  }
+
+  fail(`Unknown skills command: ${action || '(missing)'}. Valid: list, install, path\n${usage()}`);
+}
+
 async function main(argv = process.argv.slice(2)) {
   const args = parseArgs(argv);
   const command = args._[0];
@@ -451,6 +576,11 @@ async function main(argv = process.argv.slice(2)) {
     return;
   }
 
+  if (command === 'skills') {
+    handleSkills(args);
+    return;
+  }
+
   fail(`Unknown command: ${command}\n${usage()}`);
 }
 
@@ -464,4 +594,9 @@ module.exports = {
   runPromptminderCli,
   usage,
   parseArgs,
+  handleSkills,
+  listBundledSkills,
+  parseFrontmatter,
+  resolveTargetDir,
+  BUNDLED_SKILLS_DIR,
 };
