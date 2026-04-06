@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "promptminder-cli": {
+      "source": "aircrushin/promptminder-cli-skill",
+      "sourceType": "github",
+      "computedHash": "3aeb5451a13dd89805b383ee2d2a538afa5557ab7ea9b23729c57fc92aaccdbe"
+    }
+  }
+}
