@@ -65,6 +65,10 @@ const OptimizedImage = forwardRef(({
     onError?.(event);
   };
 
+  // Skip blur placeholder for small images (Next.js requirement: images must be >= 40x40)
+  const isSmallImage = !fill && width && height && width < 40 && height < 40;
+  const effectivePlaceholder = isSmallImage ? 'empty' : placeholder;
+
   // Generate responsive sizes if not provided
   const responsiveSizes = sizes || (
     fill 
@@ -93,8 +97,8 @@ const OptimizedImage = forwardRef(({
             height={height}
             priority={priority}
             quality={quality}
-            placeholder={placeholder}
-            blurDataURL={blurDataURL || defaultBlurDataURL}
+            placeholder={effectivePlaceholder}
+            blurDataURL={effectivePlaceholder === 'blur' ? (blurDataURL || defaultBlurDataURL) : undefined}
             sizes={responsiveSizes}
             onLoad={handleLoad}
             onError={handleError}
@@ -136,8 +140,8 @@ const OptimizedImage = forwardRef(({
         fill={fill}
         priority={priority}
         quality={quality}
-        placeholder={placeholder}
-        blurDataURL={blurDataURL || defaultBlurDataURL}
+        placeholder={effectivePlaceholder}
+        blurDataURL={effectivePlaceholder === 'blur' ? (blurDataURL || defaultBlurDataURL) : undefined}
         sizes={responsiveSizes}
         onLoad={handleLoad}
         onError={handleError}

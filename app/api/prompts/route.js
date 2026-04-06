@@ -37,7 +37,7 @@ function buildPromptConditions({ teamId, userId, tag, search }) {
 
 export async function GET(request) {
   try {
-    const userId = await requireUserId()
+    const userId = await requireUserId(request)
     const { teamId, db, teamService } = await resolveTeamContext(request, userId, {
       requireMembership: false,
       allowMissingTeam: true
@@ -153,7 +153,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const userId = await requireUserId()
+    const userId = await requireUserId(request)
     const { teamId, db, teamService } = await resolveTeamContext(request, userId, {
       requireMembership: false,
       allowMissingTeam: true

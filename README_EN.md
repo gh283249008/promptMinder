@@ -115,6 +115,22 @@ pnpm dev
 
 Visit [http://localhost:3000](http://localhost:3000) to view the application.
 
+## CLI Quick Start
+
+Regular users do not need any admin script to get started. Create a token in the web app:
+
+```text
+https://www.prompt-minder.com/settings/cli-tokens
+```
+
+Then install and use the CLI:
+
+```bash
+npm i -g @aircrushin/promptminder-cli
+promptminder auth login --token pm_xxx
+promptminder team list
+```
+
 ## 📦 Deployment Guide
 
 ### Vercel Deployment
@@ -187,14 +203,6 @@ pnpm db:studio     # Open Drizzle Studio for visual database management
 - When enabled, new prompts and edits are submitted as change requests instead of being published directly.
 - Approval permissions: `owner/admin`; review threads support `@mentions`.
 - Prompt-level subscriptions and the Notification Center are available for in-app updates.
-
-### Supabase Storage (File Uploads)
-
-Supabase is used only for file storage (e.g., prompt cover image uploads).
-
-1. Register for a [Supabase](https://supabase.com) account
-2. Create a new project and get the project URL and anonymous key
-3. Create a Storage Bucket in the Supabase console
 
 ## 🔐 Authentication Configuration
 

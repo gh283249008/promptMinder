@@ -10,7 +10,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import { Menu, Library, LayoutGrid, Languages, FlaskConical, Bell } from "lucide-react";
+import { Menu, Library, LayoutGrid, Languages, FlaskConical, Bell, Terminal } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -346,6 +346,15 @@ export default function Navbar() {
                   <div className="text-xs font-medium text-muted-foreground px-2 mb-2">
                     {translations.navbar.settingsSection}
                   </div>
+                  <SignedIn>
+                    <Link
+                      href="/settings/cli-tokens"
+                      className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-muted-foreground transition-all duration-200 hover:bg-accent hover:text-accent-foreground"
+                    >
+                      <Terminal className="h-4 w-4 shrink-0" />
+                      <span>CLI Tokens</span>
+                    </Link>
+                  </SignedIn>
                   <Button
                     variant="ghost"
                     onClick={toggleLanguage}
@@ -374,6 +383,15 @@ export default function Navbar() {
           >
             <Languages className="h-5 w-5" />
           </Button>
+
+          <SignedIn>
+            <Button asChild variant="ghost" className="hidden md:inline-flex rounded-xl text-slate-600 hover:bg-slate-100">
+              <Link href="/settings/cli-tokens">
+                <Terminal className="h-4 w-4" />
+                CLI
+              </Link>
+            </Button>
+          </SignedIn>
 
           <SignedIn>
             <Button asChild variant="ghost" size="icon" className="relative rounded-xl text-slate-600 hover:bg-slate-100">

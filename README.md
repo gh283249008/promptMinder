@@ -115,6 +115,22 @@ pnpm dev
 
 访问 [http://localhost:3000](http://localhost:3000) 查看应用。
 
+## CLI Quick Start
+
+普通用户不需要后台脚本发 token，直接在网页里创建：
+
+```text
+https://www.prompt-minder.com/settings/cli-tokens
+```
+
+然后安装并使用 CLI：
+
+```bash
+npm i -g @aircrushin/promptminder-cli
+promptminder auth login --token pm_xxx
+promptminder team list
+```
+
 ## 📦 部署指南
 
 ### Vercel 部署
@@ -186,14 +202,6 @@ pnpm db:studio     # 打开 Drizzle Studio 可视化管理数据库
 - 开启后，团队内新建/改版会进入审批单，不会直接发布到版本列表。
 - 审批权限：`owner/admin`；支持审批单评论与 `@成员` 协作。
 - 支持按提示词订阅变更，并在通知中心查看未读/已读消息。
-
-### Supabase Storage (文件上传)
-
-Supabase 仅用于文件存储功能（如提示词封面图片上传）。
-
-1. 注册 [Supabase](https://supabase.com) 账户
-2. 创建新项目，获取项目 URL 和匿名密钥
-3. 在 Supabase 控制台创建 Storage Bucket
 
 ## 🔐 认证配置
 

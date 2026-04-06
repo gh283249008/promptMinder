@@ -1269,5 +1269,23 @@
       "cancelEdit": "Cancel",
       "confirmResend": "Resend"
     }
+  },
+  "cli": {
+    "badge": "Developer Tools",
+    "title": "One command to rule your prompts",
+    "description": "Manage prompts straight from the terminal with PromptMinder CLI. Integrate into any workflow or CI/CD pipeline in seconds.",
+    "installCommand": "npm install -g @aircrushin/promptminder-cli",
+    "copied": "Copied!",
+    "copyCommand": "Copy install command",
+    "terminalTitle": "Terminal",
+    "features": [
+      { "label": "Prompt Management", "desc": "CRUD operations with full version history" },
+      { "label": "Tag Management", "desc": "Bulk create and organize tags" },
+      { "label": "Team Collaboration", "desc": "Cross-team sharing and permissions" },
+      { "label": "Agent Integration", "desc": "Built-in agent mode for automation" }
+    ],
+    "npmLink": "View on npm",
+    "docsLink": "Documentation",
+    "version": "v0.1.2 · MIT License"
   }
 }

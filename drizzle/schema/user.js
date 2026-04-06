@@ -56,3 +56,23 @@ export const providerKeys = pgTable(
     index('provider_keys_user_idx').on(table.userId),
   ]
 )
+
+export const cliTokens = pgTable(
+  'cli_tokens',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: text('user_id').notNull(),
+    name: text('name').notNull(),
+    tokenHash: text('token_hash').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .default(sql`timezone('utc', now())`),
+    lastUsedAt: timestamp('last_used_at', { withTimezone: true }),
+    revokedAt: timestamp('revoked_at', { withTimezone: true }),
+  },
+  (table) => [
+    uniqueIndex('cli_tokens_token_hash_idx').on(table.tokenHash),
+    index('cli_tokens_user_id_idx').on(table.userId),
+    index('cli_tokens_revoked_at_idx').on(table.revokedAt),
+  ]
+)
