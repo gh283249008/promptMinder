@@ -172,10 +172,6 @@
       {
         "question": "How is data security ensured?",
         "answer": "We use enterprise-level encryption technology to protect your data and support data export and backup functions."
-      },
-      {
-        "question": "Is private deployment supported?",
-        "answer": "Enterprise plan users can choose a private deployment solution, and we provide complete deployment support and technical services."
       }
     ]
   },
@@ -189,6 +185,85 @@
   "language": {
     "switchTo": "切换到中文",
     "current": "English"
+  },
+  "common": {
+    "copy": "Copy",
+    "copied": "Copied"
+  },
+  "cliTokens": {
+    "pageBadge": "Settings",
+    "pageTitle": "CLI Tokens",
+    "pageStatus": "secure",
+    "pageDescription": "Each token carries your account permissions. New tokens are shown once and work well for local CLI usage, automation scripts, and AI agents.",
+    "createTitle": "Create new token",
+    "createDescription": "Use one token per agent so you can distinguish environments and purposes by name.",
+    "createAction": "Create token",
+    "creatingAction": "Creating...",
+    "namePlaceholder": "agent-prod",
+    "revealTitle": "Save the plain-text token now",
+    "revealDescription": "This value will not be shown again. Put it in an environment variable or a secret manager.",
+    "copyToken": "Copy token",
+    "quickSetupTitle": "Quick setup commands",
+    "quickSetupDescription": "The CLI connects to https://www.prompt-minder.com by default.",
+    "copyCommand": "Copy commands",
+    "listTitle": "Existing tokens",
+    "listDescription": "Revoked tokens stop working immediately, and the list keeps the history.",
+    "listCount": "{count} tokens",
+    "listLoading": "loading...",
+    "emptyTitle": "No CLI tokens yet",
+    "emptyDescriptionPrefix": "Create one first, then run",
+    "statusActive": "Active",
+    "statusRevoked": "Revoked",
+    "createdAt": "Created {value}",
+    "lastUsedAt": "Last used {value}",
+    "revokeAction": "Revoke",
+    "revokingAction": "Revoking...",
+    "howToUseTitle": "How to use",
+    "steps": [
+      {
+        "step": "01",
+        "text": "Install CLI",
+        "code": "npm i -g @aircrushin/promptminder-cli"
+      },
+      {
+        "step": "02",
+        "text": "Create token",
+        "desc": "Enter a name in the form above, then click \"Create token\"."
+      },
+      {
+        "step": "03",
+        "text": "Authenticate",
+        "code": "promptminder auth login --token <YOUR_TOKEN>"
+      },
+      {
+        "step": "04",
+        "text": "Verify the connection",
+        "code": "promptminder team list"
+      }
+    ],
+    "dialogTitle": "Revoke this token?",
+    "dialogDescription": "After revocation, this token can no longer access the CLI or agent wrapper. This action cannot be undone.",
+    "dialogCancel": "Cancel",
+    "dialogConfirm": "Confirm revoke",
+    "authTitle": "Access required",
+    "authDescription": "Sign in to create, inspect, and revoke PromptMinder CLI tokens.",
+    "authAction": "Sign in to continue",
+    "officialSite": "Website",
+    "loadingState": "initializing...",
+    "toasts": {
+      "loadFailedTitle": "Failed to load",
+      "loadFailedDescription": "Unable to load CLI tokens",
+      "nameRequiredTitle": "Name required",
+      "nameRequiredDescription": "Enter a token name first, for example agent-prod.",
+      "createSuccessTitle": "Token created",
+      "createSuccessDescription": "The plain-text token is shown only once. Copy and store it now.",
+      "createFailedTitle": "Create failed",
+      "createFailedDescription": "Unable to create CLI token",
+      "revokeSuccessTitle": "Token revoked",
+      "revokeSuccessDescription": "Token \"{name}\" is no longer valid.",
+      "revokeFailedTitle": "Revoke failed",
+      "revokeFailedDescription": "Unable to revoke CLI token"
+    }
   },
   "variableInputs": {
     "title": "Variables",

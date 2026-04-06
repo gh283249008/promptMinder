@@ -175,7 +175,7 @@
       },
       {
         "question": "是否支持私有部署？",
-        "answer": "企业版用户可以选择私有部署方案，我们提供完整的部署支持和技术服务。"
+        "answer": "可以选择私有部署方案，我们提供完整的部署支持和技术服务。"
       }
     ]
   },
@@ -189,6 +189,85 @@
   "language": {
     "switchTo": "Switch to English",
     "current": "中文"
+  },
+  "common": {
+    "copy": "复制",
+    "copied": "已复制"
+  },
+  "cliTokens": {
+    "pageBadge": "设置",
+    "pageTitle": "CLI Tokens",
+    "pageStatus": "secure",
+    "pageDescription": "每个 token 代表你的账户权限。新 token 只会显示一次，适合给本地 CLI、自动化脚本和 AI agent 使用。",
+    "createTitle": "创建新 Token",
+    "createDescription": "建议一个 agent 配一个 token，用名称区分环境或用途",
+    "createAction": "创建 Token",
+    "creatingAction": "创建中...",
+    "namePlaceholder": "agent-prod",
+    "revealTitle": "请立即保存明文 Token",
+    "revealDescription": "此值不会再次显示，请放进环境变量或密钥管理系统",
+    "copyToken": "复制 Token",
+    "quickSetupTitle": "快速配置命令",
+    "quickSetupDescription": "CLI 默认连接 https://www.prompt-minder.com",
+    "copyCommand": "复制命令",
+    "listTitle": "现有 Tokens",
+    "listDescription": "已吊销 token 立即失效，列表保留历史记录",
+    "listCount": "{count} 个",
+    "listLoading": "loading...",
+    "emptyTitle": "还没有 CLI token",
+    "emptyDescriptionPrefix": "先创建一个，然后执行",
+    "statusActive": "生效中",
+    "statusRevoked": "已吊销",
+    "createdAt": "创建 {value}",
+    "lastUsedAt": "最近使用 {value}",
+    "revokeAction": "吊销",
+    "revokingAction": "吊销中...",
+    "howToUseTitle": "如何使用",
+    "steps": [
+      {
+        "step": "01",
+        "text": "安装 CLI",
+        "code": "npm i -g @aircrushin/promptminder-cli"
+      },
+      {
+        "step": "02",
+        "text": "创建 Token",
+        "desc": "在上方表单输入名称，点击「创建 Token」"
+      },
+      {
+        "step": "03",
+        "text": "配置认证",
+        "code": "promptminder auth login --token <YOUR_TOKEN>"
+      },
+      {
+        "step": "04",
+        "text": "验证连接",
+        "code": "promptminder team list"
+      }
+    ],
+    "dialogTitle": "确认吊销 Token？",
+    "dialogDescription": "吊销后，此 token 将无法继续调用 CLI 和 agent 封装能力。此操作不可恢复。",
+    "dialogCancel": "取消",
+    "dialogConfirm": "确认吊销",
+    "authTitle": "Access Required",
+    "authDescription": "登录后即可自助创建、查看和吊销 PromptMinder CLI token。",
+    "authAction": "登录后继续",
+    "officialSite": "官网",
+    "loadingState": "initializing...",
+    "toasts": {
+      "loadFailedTitle": "加载失败",
+      "loadFailedDescription": "无法加载 CLI tokens",
+      "nameRequiredTitle": "名称必填",
+      "nameRequiredDescription": "请先输入 token 名称，例如 agent-prod。",
+      "createSuccessTitle": "创建成功",
+      "createSuccessDescription": "明文 token 只会显示这一次，请立即复制保存。",
+      "createFailedTitle": "创建失败",
+      "createFailedDescription": "无法创建 CLI token",
+      "revokeSuccessTitle": "已吊销",
+      "revokeSuccessDescription": "Token \"{name}\" 已失效。",
+      "revokeFailedTitle": "吊销失败",
+      "revokeFailedDescription": "无法吊销 CLI token"
+    }
   },
   "variableInputs": {
     "title": "变量",

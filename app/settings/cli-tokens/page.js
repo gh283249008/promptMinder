@@ -15,14 +15,103 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { apiClient, ApiError } from '@/lib/api-client'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 
-function formatDateTime(value) {
+const FALLBACK_TRANSLATIONS = {
+  pageBadge: '设置',
+  pageTitle: 'CLI Tokens',
+  pageStatus: 'secure',
+  pageDescription: '每个 token 代表你的账户权限。新 token 只会显示一次，适合给本地 CLI、自动化脚本和 AI agent 使用。',
+  createTitle: '创建新 Token',
+  createDescription: '建议一个 agent 配一个 token，用名称区分环境或用途',
+  createAction: '创建 Token',
+  creatingAction: '创建中...',
+  namePlaceholder: 'agent-prod',
+  revealTitle: '请立即保存明文 Token',
+  revealDescription: '此值不会再次显示，请放进环境变量或密钥管理系统',
+  copyToken: '复制 Token',
+  quickSetupTitle: '快速配置命令',
+  quickSetupDescription: 'CLI 默认连接 https://www.prompt-minder.com',
+  copyCommand: '复制命令',
+  listTitle: '现有 Tokens',
+  listDescription: '已吊销 token 立即失效，列表保留历史记录',
+  listCount: '{count} 个',
+  listLoading: 'loading...',
+  emptyTitle: '还没有 CLI token',
+  emptyDescriptionPrefix: '先创建一个，然后执行',
+  statusActive: '生效中',
+  statusRevoked: '已吊销',
+  createdAt: '创建 {value}',
+  lastUsedAt: '最近使用 {value}',
+  revokeAction: '吊销',
+  revokingAction: '吊销中...',
+  howToUseTitle: '如何使用',
+  steps: [
+    {
+      step: '01',
+      text: '安装 CLI',
+      code: 'npm i -g @aircrushin/promptminder-cli',
+    },
+    {
+      step: '02',
+      text: '创建 Token',
+      desc: '在上方表单输入名称，点击「创建 Token」',
+    },
+    {
+      step: '03',
+      text: '配置认证',
+      code: 'promptminder auth login --token <YOUR_TOKEN>',
+    },
+    {
+      step: '04',
+      text: '验证连接',
+      code: 'promptminder team list',
+    },
+  ],
+  dialogTitle: '确认吊销 Token？',
+  dialogDescription: '吊销后，此 token 将无法继续调用 CLI 和 agent 封装能力。此操作不可恢复。',
+  dialogCancel: '取消',
+  dialogConfirm: '确认吊销',
+  authTitle: 'Access Required',
+  authDescription: '登录后即可自助创建、查看和吊销 PromptMinder CLI token。',
+  authAction: '登录后继续',
+  officialSite: '官网',
+  loadingState: 'initializing...',
+  toasts: {
+    loadFailedTitle: '加载失败',
+    loadFailedDescription: '无法加载 CLI tokens',
+    nameRequiredTitle: '名称必填',
+    nameRequiredDescription: '请先输入 token 名称，例如 agent-prod。',
+    createSuccessTitle: '创建成功',
+    createSuccessDescription: '明文 token 只会显示这一次，请立即复制保存。',
+    createFailedTitle: '创建失败',
+    createFailedDescription: '无法创建 CLI token',
+    revokeSuccessTitle: '已吊销',
+    revokeSuccessDescription: 'Token "{name}" 已失效。',
+    revokeFailedTitle: '吊销失败',
+    revokeFailedDescription: '无法吊销 CLI token',
+  },
+}
+
+const FALLBACK_COMMON = {
+  copy: '复制',
+  copied: '已复制',
+}
+
+function interpolate(template, values = {}) {
+  return Object.entries(values).reduce(
+    (result, [key, value]) => result.replaceAll(`{${key}}`, String(value)),
+    template
+  )
+}
+
+function formatDateTime(value, language) {
   if (!value) return '—'
 
   try {
-    return new Date(value).toLocaleString('zh-CN', {
+    return new Date(value).toLocaleString(language === 'en' ? 'en-US' : 'zh-CN', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -42,7 +131,7 @@ function buildInstallSnippet(token) {
   ].join('\n')
 }
 
-function CopyButton({ text, label = '复制', className }) {
+function CopyButton({ text, label, copiedLabel, className }) {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = useCallback(async () => {
@@ -67,13 +156,14 @@ function CopyButton({ text, label = '复制', className }) {
       )}
     >
       {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-      {copied ? '已复制' : label}
+      {copied ? copiedLabel : label}
     </button>
   )
 }
 
 export default function CliTokensPage() {
   const { isLoaded, isSignedIn } = useUser()
+  const { language, t } = useLanguage()
   const { toast } = useToast()
   const [tokens, setTokens] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -82,6 +172,19 @@ export default function CliTokensPage() {
   const [name, setName] = useState('agent-prod')
   const [newSecret, setNewSecret] = useState(null)
   const [revokeTarget, setRevokeTarget] = useState(null)
+  const translations = {
+    ...FALLBACK_TRANSLATIONS,
+    ...(t?.cliTokens || {}),
+    steps: t?.cliTokens?.steps || FALLBACK_TRANSLATIONS.steps,
+    toasts: {
+      ...FALLBACK_TRANSLATIONS.toasts,
+      ...(t?.cliTokens?.toasts || {}),
+    },
+  }
+  const commonTranslations = {
+    ...FALLBACK_COMMON,
+    ...(t?.common || {}),
+  }
 
   const installSnippet = useMemo(() => {
     if (!newSecret) return ''
@@ -94,12 +197,14 @@ export default function CliTokensPage() {
       const result = await apiClient.getCliTokens()
       setTokens(Array.isArray(result?.tokens) ? result.tokens : [])
     } catch (error) {
-      const message = error instanceof ApiError ? error.message : '无法加载 CLI tokens'
-      toast({ title: '加载失败', description: message, variant: 'destructive' })
+      const message = error instanceof ApiError
+        ? error.message
+        : translations.toasts.loadFailedDescription
+      toast({ title: translations.toasts.loadFailedTitle, description: message, variant: 'destructive' })
     } finally {
       setIsLoading(false)
     }
-  }, [toast])
+  }, [toast, translations.toasts.loadFailedDescription, translations.toasts.loadFailedTitle])
 
   useEffect(() => {
     if (!isLoaded || !isSignedIn) {
@@ -112,7 +217,11 @@ export default function CliTokensPage() {
   const handleCreate = useCallback(async () => {
     const trimmedName = name.trim()
     if (!trimmedName) {
-      toast({ title: '名称必填', description: '请先输入 token 名称，例如 agent-prod。', variant: 'destructive' })
+      toast({
+        title: translations.toasts.nameRequiredTitle,
+        description: translations.toasts.nameRequiredDescription,
+        variant: 'destructive'
+      })
       return
     }
 
@@ -126,14 +235,19 @@ export default function CliTokensPage() {
         return [nextToken, ...prev]
       })
       setName('agent-prod')
-      toast({ title: '创建成功', description: '明文 token 只会显示这一次，请立即复制保存。' })
+      toast({
+        title: translations.toasts.createSuccessTitle,
+        description: translations.toasts.createSuccessDescription
+      })
     } catch (error) {
-      const message = error instanceof ApiError ? error.message : '无法创建 CLI token'
-      toast({ title: '创建失败', description: message, variant: 'destructive' })
+      const message = error instanceof ApiError
+        ? error.message
+        : translations.toasts.createFailedDescription
+      toast({ title: translations.toasts.createFailedTitle, description: message, variant: 'destructive' })
     } finally {
       setIsCreating(false)
     }
-  }, [name, toast])
+  }, [name, toast, translations.toasts])
 
   const handleRevoke = useCallback(async () => {
     if (!revokeTarget) return
@@ -146,22 +260,27 @@ export default function CliTokensPage() {
           ? { ...token, revoked_at: new Date().toISOString(), is_revoked: true }
           : token
       )))
-      toast({ title: '已吊销', description: `Token "${revokeTarget.name}" 已失效。` })
+      toast({
+        title: translations.toasts.revokeSuccessTitle,
+        description: interpolate(translations.toasts.revokeSuccessDescription, { name: revokeTarget.name })
+      })
     } catch (error) {
-      const message = error instanceof ApiError ? error.message : '无法吊销 CLI token'
-      toast({ title: '吊销失败', description: message, variant: 'destructive' })
+      const message = error instanceof ApiError
+        ? error.message
+        : translations.toasts.revokeFailedDescription
+      toast({ title: translations.toasts.revokeFailedTitle, description: message, variant: 'destructive' })
     } finally {
       setRevokingId(null)
       setRevokeTarget(null)
     }
-  }, [revokeTarget, toast])
+  }, [revokeTarget, toast, translations.toasts])
 
   if (!isLoaded) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="flex items-center gap-3 font-mono text-sm text-black/40">
           <span className="inline-block w-2 h-2 bg-black animate-pulse" />
-          initializing...
+          {translations.loadingState}
         </div>
       </div>
     )
@@ -173,19 +292,19 @@ export default function CliTokensPage() {
         <div className="w-full max-w-md border border-black">
           <div className="border-b border-black px-6 py-4 flex items-center gap-3">
             <Terminal className="h-4 w-4 text-black" />
-            <span className="font-mono text-sm font-medium tracking-widest uppercase">CLI Tokens</span>
+            <span className="font-mono text-sm font-medium tracking-widest uppercase">{translations.pageTitle}</span>
           </div>
           <div className="px-6 py-8 space-y-6">
             <div className="space-y-2">
-              <p className="font-mono text-xs text-black/50 uppercase tracking-widest">Access Required</p>
+              <p className="font-mono text-xs text-black/50 uppercase tracking-widest">{translations.authTitle}</p>
               <p className="text-sm text-black/70 leading-relaxed">
-                登录后即可自助创建、查看和吊销 PromptMinder CLI token。
+                {translations.authDescription}
               </p>
             </div>
             <div className="flex items-center gap-3">
               <SignInButton mode="modal" redirectUrl="/settings/cli-tokens">
                 <button className="px-4 py-2 bg-black text-white text-sm font-mono font-medium hover:bg-black/80 transition-colors">
-                  登录后继续
+                  {translations.authAction}
                 </button>
               </SignInButton>
               <Link
@@ -193,7 +312,7 @@ export default function CliTokensPage() {
                 target="_blank"
                 className="inline-flex items-center gap-1.5 px-4 py-2 border border-black text-sm font-mono font-medium hover:bg-black hover:text-white transition-colors"
               >
-                官网
+                {translations.officialSite}
                 <ExternalLink className="h-3 w-3" />
               </Link>
             </div>
@@ -211,17 +330,17 @@ export default function CliTokensPage() {
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <KeyRound className="h-3.5 w-3.5 text-black/40" />
-            <span className="font-mono text-xs text-black/40 uppercase tracking-widest">Settings</span>
+            <span className="font-mono text-xs text-black/40 uppercase tracking-widest">{translations.pageBadge}</span>
           </div>
           <div className="flex items-end gap-4">
-            <h1 className="text-4xl font-bold tracking-tight text-black leading-none">CLI Tokens</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-black leading-none">{translations.pageTitle}</h1>
             <div className="mb-1 flex items-center gap-1.5 pb-0.5">
               <span className="block w-1.5 h-1.5 bg-black animate-pulse" />
-              <span className="font-mono text-xs text-black/40">secure</span>
+              <span className="font-mono text-xs text-black/40">{translations.pageStatus}</span>
             </div>
           </div>
           <p className="text-sm text-black/55 max-w-xl leading-relaxed">
-            每个 token 代表你的账户权限。新 token 只会显示一次，适合给本地 CLI、自动化脚本和 AI agent 使用。
+            {translations.pageDescription}
           </p>
         </div>
 
@@ -229,9 +348,9 @@ export default function CliTokensPage() {
         <section className="border border-black">
           <div className="border-b border-black px-6 py-4 flex items-center justify-between">
             <div>
-              <h2 className="font-mono text-sm font-semibold tracking-wide uppercase">创建新 Token</h2>
+              <h2 className="font-mono text-sm font-semibold tracking-wide uppercase">{translations.createTitle}</h2>
               <p className="mt-0.5 font-mono text-xs text-black/45">
-                建议一个 agent 配一个 token，用名称区分环境或用途
+                {translations.createDescription}
               </p>
             </div>
             <Plus className="h-4 w-4 text-black/30" />
@@ -242,7 +361,7 @@ export default function CliTokensPage() {
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="agent-prod"
+                placeholder={translations.namePlaceholder}
                 maxLength={80}
                 className="flex-1 px-3 py-2 border border-black font-mono text-sm bg-white text-black placeholder:text-black/30 outline-none focus:bg-black/[0.02] transition-colors"
               />
@@ -252,7 +371,7 @@ export default function CliTokensPage() {
                 className="inline-flex items-center justify-center gap-2 px-5 py-2 bg-black text-white font-mono text-sm font-medium hover:bg-black/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
               >
                 <Plus className="h-3.5 w-3.5" />
-                {isCreating ? '创建中...' : '创建 Token'}
+                {isCreating ? translations.creatingAction : translations.createAction}
               </button>
             </div>
 
@@ -261,10 +380,15 @@ export default function CliTokensPage() {
                 {/* Warning header */}
                 <div className="bg-black text-white px-5 py-3 flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <p className="font-mono text-xs font-semibold uppercase tracking-widest">⚠ 请立即保存明文 Token</p>
-                    <p className="font-mono text-xs text-white/60">此值不会再次显示，请放进环境变量或密钥管理系统</p>
+                    <p className="font-mono text-xs font-semibold uppercase tracking-widest">⚠ {translations.revealTitle}</p>
+                    <p className="font-mono text-xs text-white/60">{translations.revealDescription}</p>
                   </div>
-                  <CopyButton text={newSecret} label="复制 Token" className="border-white text-white bg-transparent hover:bg-white hover:text-black" />
+                  <CopyButton
+                    text={newSecret}
+                    label={translations.copyToken}
+                    copiedLabel={commonTranslations.copied}
+                    className="border-white text-white bg-transparent hover:bg-white hover:text-black"
+                  />
                 </div>
 
                 {/* Token value */}
@@ -278,10 +402,10 @@ export default function CliTokensPage() {
                 <div className="border-t border-black px-5 py-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-mono text-xs font-semibold uppercase tracking-wide text-black">快速配置命令</p>
-                      <p className="font-mono text-xs text-black/45 mt-0.5">CLI 默认连接 https://www.prompt-minder.com</p>
+                      <p className="font-mono text-xs font-semibold uppercase tracking-wide text-black">{translations.quickSetupTitle}</p>
+                      <p className="font-mono text-xs text-black/45 mt-0.5">{translations.quickSetupDescription}</p>
                     </div>
-                    <CopyButton text={installSnippet} label="复制命令" />
+                    <CopyButton text={installSnippet} label={translations.copyCommand} copiedLabel={commonTranslations.copied} />
                   </div>
                   <div className="bg-[#0a0a0a] px-5 py-4">
                     <pre className="font-mono text-xs text-white/90 overflow-x-auto">
@@ -298,25 +422,25 @@ export default function CliTokensPage() {
         <section className="border border-black">
           <div className="border-b border-black px-6 py-4 flex items-center justify-between">
             <div>
-              <h2 className="font-mono text-sm font-semibold tracking-wide uppercase">现有 Tokens</h2>
-              <p className="mt-0.5 font-mono text-xs text-black/45">已吊销 token 立即失效，列表保留历史记录</p>
+              <h2 className="font-mono text-sm font-semibold tracking-wide uppercase">{translations.listTitle}</h2>
+              <p className="mt-0.5 font-mono text-xs text-black/45">{translations.listDescription}</p>
             </div>
             {!isLoading && tokens.length > 0 && (
-              <span className="font-mono text-xs text-black/40">{tokens.length} 个</span>
+              <span className="font-mono text-xs text-black/40">{interpolate(translations.listCount, { count: tokens.length })}</span>
             )}
           </div>
 
           {isLoading ? (
             <div className="px-6 py-12 flex items-center gap-3">
               <span className="block w-1.5 h-1.5 bg-black animate-pulse" />
-              <span className="font-mono text-xs text-black/40">loading...</span>
+              <span className="font-mono text-xs text-black/40">{translations.listLoading}</span>
             </div>
           ) : tokens.length === 0 ? (
             <div className="px-6 py-16 text-center">
               <Terminal className="h-8 w-8 text-black/15 mx-auto mb-4" />
-              <p className="font-mono text-sm text-black/40">还没有 CLI token</p>
+              <p className="font-mono text-sm text-black/40">{translations.emptyTitle}</p>
               <p className="font-mono text-xs text-black/30 mt-1">
-                先创建一个，然后执行 <code className="bg-black/5 px-1">promptminder auth login</code>
+                {translations.emptyDescriptionPrefix} <code className="bg-black/5 px-1">promptminder auth login</code>
               </p>
             </div>
           ) : (
@@ -341,12 +465,12 @@ export default function CliTokensPage() {
                               : 'border-black bg-black text-white'
                           )}
                         >
-                          {token.is_revoked ? '已吊销' : '生效中'}
+                          {token.is_revoked ? translations.statusRevoked : translations.statusActive}
                         </span>
                       </div>
                       <div className="font-mono text-xs text-black/40 flex flex-wrap gap-x-5 gap-y-1">
-                        <span>创建 {formatDateTime(token.created_at)}</span>
-                        <span>最近使用 {formatDateTime(token.last_used_at)}</span>
+                        <span>{interpolate(translations.createdAt, { value: formatDateTime(token.created_at, language) })}</span>
+                        <span>{interpolate(translations.lastUsedAt, { value: formatDateTime(token.last_used_at, language) })}</span>
                       </div>
                     </div>
                   </div>
@@ -359,7 +483,7 @@ export default function CliTokensPage() {
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-black/30 font-mono text-xs text-black/60 hover:border-black hover:text-black hover:bg-black/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150"
                       >
                         <Trash2 className="h-3 w-3" />
-                        {revokingId === token.id ? '吊销中...' : '吊销'}
+                        {revokingId === token.id ? translations.revokingAction : translations.revokeAction}
                       </button>
                     )}
                   </div>
@@ -372,32 +496,11 @@ export default function CliTokensPage() {
         {/* How to use */}
         <section className="border border-black">
           <div className="border-b border-black px-6 py-4">
-            <h2 className="font-mono text-sm font-semibold tracking-wide uppercase">如何使用</h2>
+            <h2 className="font-mono text-sm font-semibold tracking-wide uppercase">{translations.howToUseTitle}</h2>
           </div>
           <div className="px-6 py-5">
             <ol className="space-y-0 divide-y divide-black/8">
-              {[
-                {
-                  step: '01',
-                  text: '安装 CLI',
-                  code: 'npm i -g @aircrushin/promptminder-cli',
-                },
-                {
-                  step: '02',
-                  text: '创建 Token',
-                  desc: '在上方表单输入名称，点击「创建 Token」',
-                },
-                {
-                  step: '03',
-                  text: '配置认证',
-                  code: 'promptminder auth login --token <YOUR_TOKEN>',
-                },
-                {
-                  step: '04',
-                  text: '验证连接',
-                  code: 'promptminder team list',
-                },
-              ].map(({ step, text, code, desc }) => (
+              {translations.steps.map(({ step, text, code, desc }) => (
                 <div key={step} className="flex items-start gap-5 py-4">
                   <span className="font-mono text-2xl font-bold text-black/10 leading-none shrink-0 w-8">{step}</span>
                   <div className="space-y-1.5 min-w-0 flex-1">
@@ -407,7 +510,7 @@ export default function CliTokensPage() {
                         <code className="font-mono text-xs text-black/70 bg-black/5 px-2 py-1 flex-1 min-w-0 overflow-x-auto">
                           {code}
                         </code>
-                        <CopyButton text={code} label="复制" />
+                        <CopyButton text={code} label={commonTranslations.copy} copiedLabel={commonTranslations.copied} />
                       </div>
                     )}
                     {desc && <p className="font-mono text-xs text-black/45">{desc}</p>}
@@ -425,21 +528,21 @@ export default function CliTokensPage() {
         <AlertDialogContent className="border border-black rounded-none shadow-none p-0 gap-0 max-w-md">
           <AlertDialogHeader className="border-b border-black px-6 py-5 space-y-1">
             <AlertDialogTitle className="font-mono text-sm font-semibold uppercase tracking-wide">
-              确认吊销 Token？
+              {translations.dialogTitle}
             </AlertDialogTitle>
             <AlertDialogDescription className="font-mono text-xs text-black/55 leading-relaxed">
-              吊销后，此 token 将无法继续调用 CLI 和 agent 封装能力。此操作不可恢复。
+              {translations.dialogDescription}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="px-6 py-4 flex flex-row items-center gap-3">
             <AlertDialogCancel className="flex-1 py-2 border border-black/30 font-mono text-xs text-black/60 hover:border-black hover:text-black hover:bg-transparent bg-transparent rounded-none shadow-none transition-colors">
-              取消
+              {translations.dialogCancel}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleRevoke}
               className="flex-1 py-2 bg-black text-white font-mono text-xs hover:bg-black/80 rounded-none shadow-none transition-colors"
             >
-              确认吊销
+              {translations.dialogConfirm}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

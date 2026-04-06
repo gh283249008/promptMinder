@@ -25,4 +25,17 @@ describe('CLISection', () => {
     expect(screen.getByText('npm install -g @aircrushin/promptminder-cli')).toBeInTheDocument();
     expect(screen.getByText('npx skills add aircrushin/promptminder-cli-skill')).toBeInTheDocument();
   });
+
+  it('应该把复制按钮放在步骤标题栏里且不展示复制说明文字', () => {
+    render(<CLISection />);
+
+    expect(screen.queryByText('Copy CLI install command')).not.toBeInTheDocument();
+    expect(screen.queryByText('Copy skill install command')).not.toBeInTheDocument();
+
+    const cliHeader = screen.getByText('Step 1 · Install CLI').closest('div');
+    const skillHeader = screen.getByText('Step 2 · Install Agent Skill').closest('div');
+
+    expect(cliHeader.querySelector('button[aria-label="Copy CLI install command"]')).not.toBeNull();
+    expect(skillHeader.querySelector('button[aria-label="Copy skill install command"]')).not.toBeNull();
+  });
 });

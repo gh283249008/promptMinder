@@ -142,33 +142,30 @@ export function CLISection({ t }) {
                     key={item.key}
                     className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white/70 shadow-lg shadow-indigo-500/5 backdrop-blur-xl"
                   >
-                    <div className="border-b border-slate-200/60 px-5 py-3">
+                    <div className="flex items-center justify-between gap-3 border-b border-slate-200/60 px-5 py-3">
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
                         {item.label}
                       </p>
-                    </div>
-                    <div className="flex flex-col sm:flex-row sm:items-stretch">
-                      <div className="flex flex-1 items-center gap-3 px-5 py-4">
-                        <span className="select-none font-mono text-base font-semibold text-indigo-500">$</span>
-                        <code className="flex-1 select-all break-all font-mono text-sm text-slate-800 sm:text-base">
-                          {item.command}
-                        </code>
-                      </div>
                       <button
                         onClick={() => handleCopy(item.key, item.command)}
                         aria-label={item.copyLabel}
                         title={item.copyLabel}
-                        className="group flex items-center justify-center gap-2 border-t border-slate-200/60 px-5 py-4 text-sm font-medium text-slate-500 transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 sm:border-l sm:border-t-0"
+                        className="group inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-500 transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                       >
-                        <span className="hidden sm:inline">
-                          {isCopied ? tr.copied : item.copyLabel}
-                        </span>
                         {isCopied ? (
                           <CheckIcon className="h-4 w-4 text-emerald-500" />
                         ) : (
                           <ClipboardDocumentIcon className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                         )}
                       </button>
+                    </div>
+                    <div className="flex">
+                      <div className="flex flex-1 items-center gap-3 px-5 py-4">
+                        <span className="select-none font-mono text-base font-semibold text-indigo-500">$</span>
+                        <code className="flex-1 select-all break-all font-mono text-sm text-slate-800 sm:text-base">
+                          {item.command}
+                        </code>
+                      </div>
                     </div>
                   </div>
                 );
