@@ -131,6 +131,18 @@ promptminder auth login --token pm_xxx
 promptminder team list
 ```
 
+### CLI Agent Skill
+
+如果你希望 Cursor、Claude Code、Codex CLI 等 AI agent 正确使用 PromptMinder CLI，优先安装独立 skill 仓库：
+
+```bash
+npx skills add aircrushin/promptminder-cli-skill
+```
+
+仓库地址：`https://github.com/aircrushin/promptminder-cli-skill`
+
+CLI 当前仍保留 `promptminder skills install`，但该路径仅作为兼容旧安装方式的 deprecated compatibility 入口，后续以独立 skill 仓库为准。
+
 ## 📦 部署指南
 
 ### Vercel 部署
