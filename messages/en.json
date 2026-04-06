@@ -1274,9 +1274,21 @@
     "badge": "Developer Tools",
     "title": "One command to rule your prompts",
     "description": "Manage prompts straight from the terminal with PromptMinder CLI. Integrate into any workflow or CI/CD pipeline in seconds.",
-    "installCommand": "npm install -g @aircrushin/promptminder-cli",
     "copied": "Copied!",
-    "copyCommand": "Copy install command",
+    "commands": [
+      {
+        "key": "install-cli",
+        "label": "Step 1 · Install CLI",
+        "command": "npm install -g @aircrushin/promptminder-cli",
+        "copyLabel": "Copy CLI install command"
+      },
+      {
+        "key": "install-skill",
+        "label": "Step 2 · Install Agent Skill",
+        "command": "npx skills add aircrushin/promptminder-cli-skill",
+        "copyLabel": "Copy skill install command"
+      }
+    ],
     "terminalTitle": "Terminal",
     "features": [
       { "label": "Prompt Management", "desc": "CRUD operations with full version history" },

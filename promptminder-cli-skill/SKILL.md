@@ -1,8 +1,6 @@
 ---
 name: promptminder-cli
 description: Use when running promptminder or promptminder-agent commands, setting PROMPTMINDER_TOKEN, passing --team for workspace scoping, handling JSON stderr errors like "Missing token" or HTTP 401, or using the agent wrapper with dot-notation actions and --input JSON.
-version: 1.0.0
-license: MIT
 ---
 
 # PromptMinder CLI
@@ -17,7 +15,7 @@ Install the CLI first:
 npm i -g @aircrushin/promptminder-cli
 ```
 
-## Auth & Token
+## Auth and Token
 
 Token resolution order: `--token` flag -> `PROMPTMINDER_TOKEN` env var -> saved config.
 
@@ -25,7 +23,7 @@ Token resolution order: `--token` flag -> `PROMPTMINDER_TOKEN` env var -> saved 
 # One-time interactive login (saves token to ~/.promptminder/config.json)
 promptminder auth login --token pm_xxx
 
-# CI / scripts — prefer env var, no saved state needed
+# CI / scripts: prefer env var, no saved state needed
 export PROMPTMINDER_TOKEN=pm_xxx
 promptminder prompt list
 ```
@@ -60,7 +58,7 @@ promptminder prompt list --team team-uuid-xyz
 
 ## Content Input Sources
 
-`prompt create` and `prompt update` accept content three ways — use exactly one:
+`prompt create` and `prompt update` accept content three ways - use exactly one:
 
 | Flag | When to use |
 |------|-------------|
@@ -101,7 +99,7 @@ Run `promptminder-agent help` for the full list with input field requirements.
 
 ## Common Mistakes
 
-- **Wrong agent wrapper syntax**: `promptminder-agent prompt list` fails — use `promptminder-agent prompt.list` (dot notation).
-- **Wrong team flag**: `--team-id` does not exist — use `--team <uuid>`.
-- **Piping with jq**: pipe `promptminder prompt list | jq .` — stdout is always JSON.
+- **Wrong agent wrapper syntax**: `promptminder-agent prompt list` fails - use `promptminder-agent prompt.list` (dot notation).
+- **Wrong team flag**: `--team-id` does not exist - use `--team <uuid>`.
+- **Piping with jq**: pipe `promptminder prompt list | jq .` - stdout is always JSON.
 - **Token in CI**: prefer `PROMPTMINDER_TOKEN` env var; avoid checking in the token or running interactive `auth login` in pipelines.

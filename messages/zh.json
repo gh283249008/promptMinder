@@ -1295,9 +1295,21 @@
     "badge": "开发者工具",
     "title": "一行命令，控制提示词",
     "description": "使用 PromptMinder CLI 在终端中无缝管理提示词、标签与团队，轻松集成到任意工作流或 CI/CD 流水线。",
-    "installCommand": "npm install -g @aircrushin/promptminder-cli",
     "copied": "已复制！",
-    "copyCommand": "复制安装命令",
+    "commands": [
+      {
+        "key": "install-cli",
+        "label": "步骤 1 · 安装 CLI",
+        "command": "npm install -g @aircrushin/promptminder-cli",
+        "copyLabel": "复制 CLI 安装命令"
+      },
+      {
+        "key": "install-skill",
+        "label": "步骤 2 · 安装 Agent Skill",
+        "command": "npx skills add aircrushin/promptminder-cli-skill",
+        "copyLabel": "复制 Skill 安装命令"
+      }
+    ],
     "terminalTitle": "终端",
     "features": [
       { "label": "提示词管理", "desc": "增删改查，版本历史一键回溯" },

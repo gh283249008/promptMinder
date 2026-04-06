@@ -9,17 +9,21 @@ description: Use when running promptminder or promptminder-agent commands, setti
 
 `promptminder` is a JSON-in / JSON-out CLI for managing prompts, tags, and teams via the PromptMinder API. Every success response goes to **stdout**; every error goes to **stderr** as `{"error":{"message":"...","status":null}}`.
 
-Install: `npm i -g @aircrushin/promptminder-cli`
+Install the CLI first:
 
-## Auth & Token
+```bash
+npm i -g @aircrushin/promptminder-cli
+```
 
-Token resolution order: `--token` flag → `PROMPTMINDER_TOKEN` env var → saved config.
+## Auth and Token
+
+Token resolution order: `--token` flag -> `PROMPTMINDER_TOKEN` env var -> saved config.
 
 ```bash
 # One-time interactive login (saves token to ~/.promptminder/config.json)
 promptminder auth login --token pm_xxx
 
-# CI / scripts — prefer env var, no saved state needed
+# CI / scripts: prefer env var, no saved state needed
 export PROMPTMINDER_TOKEN=pm_xxx
 promptminder prompt list
 ```
@@ -28,7 +32,7 @@ promptminder prompt list
 
 ## Quick Reference
 
-```
+```text
 promptminder auth login --token <token>
 promptminder team list
 promptminder prompt list   [--team <id>] [--tag <tag>] [--search <text>] [--page <n>] [--limit <n>]
@@ -54,7 +58,7 @@ promptminder prompt list --team team-uuid-xyz
 
 ## Content Input Sources
 
-`prompt create` and `prompt update` accept content three ways — use exactly one:
+`prompt create` and `prompt update` accept content three ways - use exactly one:
 
 | Flag | When to use |
 |------|-------------|
@@ -95,7 +99,7 @@ Run `promptminder-agent help` for the full list with input field requirements.
 
 ## Common Mistakes
 
-- **Wrong agent wrapper syntax**: `promptminder-agent prompt list` fails — use `promptminder-agent prompt.list` (dot notation).
-- **Wrong team flag**: `--team-id` does not exist — use `--team <uuid>`.
-- **Piping with jq**: pipe `promptminder prompt list | jq .` — stdout is always JSON.
+- **Wrong agent wrapper syntax**: `promptminder-agent prompt list` fails - use `promptminder-agent prompt.list` (dot notation).
+- **Wrong team flag**: `--team-id` does not exist - use `--team <uuid>`.
+- **Piping with jq**: pipe `promptminder prompt list | jq .` - stdout is always JSON.
 - **Token in CI**: prefer `PROMPTMINDER_TOKEN` env var; avoid checking in the token or running interactive `auth login` in pipelines.

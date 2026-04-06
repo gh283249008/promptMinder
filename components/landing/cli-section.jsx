@@ -14,9 +14,21 @@ const DEFAULT_TRANSLATIONS = {
   title: "One command to rule your prompts",
   description:
     "Manage prompts straight from the terminal with PromptMinder CLI. Integrate into any workflow or CI/CD pipeline in seconds.",
-  installCommand: "npm install -g @aircrushin/promptminder-cli",
   copied: "Copied!",
-  copyCommand: "Copy install command",
+  commands: [
+    {
+      key: "install-cli",
+      label: "Step 1 · Install CLI",
+      command: "npm install -g @aircrushin/promptminder-cli",
+      copyLabel: "Copy CLI install command",
+    },
+    {
+      key: "install-skill",
+      label: "Step 2 · Install Agent Skill",
+      command: "npx skills add aircrushin/promptminder-cli-skill",
+      copyLabel: "Copy skill install command",
+    },
+  ],
   terminalTitle: "Terminal",
   features: [
     { label: "Prompt Management", desc: "CRUD operations with full version history" },
@@ -60,13 +72,16 @@ export function CLISection({ t }) {
   const features = Array.isArray(tr.features) && tr.features.length
     ? tr.features
     : DEFAULT_TRANSLATIONS.features;
+  const commands = Array.isArray(tr.commands) && tr.commands.length
+    ? tr.commands
+    : DEFAULT_TRANSLATIONS.commands;
 
-  const [copied, setCopied] = useState(false);
+  const [copiedKey, setCopiedKey] = useState(null);
 
-  function handleCopy() {
-    navigator.clipboard.writeText(tr.installCommand).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+  function handleCopy(commandKey, command) {
+    navigator.clipboard.writeText(command).then(() => {
+      setCopiedKey(commandKey);
+      setTimeout(() => setCopiedKey(null), 2000);
     });
   }
 
@@ -114,32 +129,50 @@ export function CLISection({ t }) {
               {tr.description}
             </motion.p>
 
-            {/* Install command box */}
+            {/* Install command boxes */}
             <motion.div
               variants={itemVariants}
-              className="mb-10 flex items-stretch overflow-hidden rounded-2xl border border-slate-200/60 bg-white/70 shadow-lg shadow-indigo-500/5 backdrop-blur-xl"
+              className="mb-10 space-y-4"
             >
-              <div className="flex flex-1 items-center gap-3 px-5 py-4">
-                <span className="select-none font-mono text-base font-semibold text-indigo-500">$</span>
-                <code className="flex-1 select-all font-mono text-sm text-slate-800 sm:text-base">
-                  {tr.installCommand}
-                </code>
-              </div>
-              <button
-                onClick={handleCopy}
-                aria-label={tr.copyCommand}
-                title={tr.copyCommand}
-                className="group flex items-center gap-2 border-l border-slate-200/60 px-5 text-sm font-medium text-slate-500 transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-              >
-                <span className="hidden sm:inline">
-                  {copied ? tr.copied : tr.copyCommand}
-                </span>
-                {copied ? (
-                  <CheckIcon className="h-4 w-4 text-emerald-500" />
-                ) : (
-                  <ClipboardDocumentIcon className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
-                )}
-              </button>
+              {commands.map((item) => {
+                const isCopied = copiedKey === item.key;
+
+                return (
+                  <div
+                    key={item.key}
+                    className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white/70 shadow-lg shadow-indigo-500/5 backdrop-blur-xl"
+                  >
+                    <div className="border-b border-slate-200/60 px-5 py-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        {item.label}
+                      </p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:items-stretch">
+                      <div className="flex flex-1 items-center gap-3 px-5 py-4">
+                        <span className="select-none font-mono text-base font-semibold text-indigo-500">$</span>
+                        <code className="flex-1 select-all break-all font-mono text-sm text-slate-800 sm:text-base">
+                          {item.command}
+                        </code>
+                      </div>
+                      <button
+                        onClick={() => handleCopy(item.key, item.command)}
+                        aria-label={item.copyLabel}
+                        title={item.copyLabel}
+                        className="group flex items-center justify-center gap-2 border-t border-slate-200/60 px-5 py-4 text-sm font-medium text-slate-500 transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 sm:border-l sm:border-t-0"
+                      >
+                        <span className="hidden sm:inline">
+                          {isCopied ? tr.copied : item.copyLabel}
+                        </span>
+                        {isCopied ? (
+                          <CheckIcon className="h-4 w-4 text-emerald-500" />
+                        ) : (
+                          <ClipboardDocumentIcon className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </motion.div>
 
             {/* Links */}
