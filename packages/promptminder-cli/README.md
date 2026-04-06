@@ -58,15 +58,29 @@ promptminder-agent prompt.create --input '{"title":"My Prompt","content":"Hello"
 
 ## Agent Skills
 
-The package ships Agent Skills — reference guides that teach AI coding agents (Cursor, Claude Code, Codex) how to use the CLI correctly. Skills cover auth, team scoping, JSON output handling, the `promptminder-agent` wrapper, and common mistakes.
+The official PromptMinder Agent Skill now lives in the standalone repository `aircrushin/promptminder-cli-skill`. That repository is the canonical public source and the recommended installation path for tools that support the Agent Skills open format.
 
-Install skills into your Cursor user directory (`~/.cursor/skills/`):
+Install the skill directly from GitHub:
+
+```bash
+npx skills add aircrushin/promptminder-cli-skill
+```
+
+Verify installation:
+
+```bash
+npx skills find promptminder-cli
+```
+
+The CLI still ships bundled skills and `promptminder skills install`, but that path is now a deprecated compatibility option for existing users.
+
+Install the bundled copy into your Cursor user directory (`~/.cursor/skills/`):
 
 ```bash
 promptminder skills install
 ```
 
-Other targets:
+Other bundled install targets:
 
 ```bash
 promptminder skills install --target cursor-project   # .cursor/skills/ in cwd (team/repo scope)
@@ -74,7 +88,7 @@ promptminder skills install --target claude           # ~/.claude/skills/
 promptminder skills install --target codex            # ~/.agents/skills/
 ```
 
-Use `--force` to overwrite an existing installation, `--skill <name>` to install a single skill.
+Use `--force` to overwrite an existing installation, `--skill <name>` to install a single bundled skill.
 
 List bundled skills:
 
