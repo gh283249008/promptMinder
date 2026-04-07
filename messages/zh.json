@@ -207,6 +207,7 @@
     "revealTitle": "请立即保存明文 Token",
     "revealDescription": "此值不会再次显示，请放进环境变量或密钥管理系统",
     "copyToken": "复制 Token",
+    "docsAction": "查看完整文档",
     "quickSetupTitle": "快速配置命令",
     "quickSetupDescription": "CLI 默认连接 https://www.prompt-minder.com",
     "copyCommand": "复制命令",

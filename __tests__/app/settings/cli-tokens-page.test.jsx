@@ -70,6 +70,7 @@ describe('CLI Tokens page', () => {
       revealDescription: 'This value will not be shown again. Put it in an environment variable or a secret manager.',
       copyToken: 'Copy token',
       copyCommand: 'Copy commands',
+      docsAction: 'Full CLI docs',
       quickSetupTitle: 'Quick setup commands',
       quickSetupDescription: 'The CLI connects to https://www.prompt-minder.com by default.',
       listTitle: 'Existing tokens',
@@ -122,6 +123,7 @@ describe('CLI Tokens page', () => {
       revealDescription: '此值不会再次显示，请放进环境变量或密钥管理系统',
       copyToken: '复制 Token',
       copyCommand: '复制命令',
+      docsAction: '查看完整文档',
       quickSetupTitle: '快速配置命令',
       quickSetupDescription: 'CLI 默认连接 https://www.prompt-minder.com',
       listTitle: '现有 Tokens',
@@ -188,6 +190,7 @@ describe('CLI Tokens page', () => {
     expect(await screen.findByText('Create new token')).toBeInTheDocument();
     expect(screen.getByText('Existing tokens')).toBeInTheDocument();
     expect(screen.getByText('How to use')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Full CLI docs' })).toHaveAttribute('href', '/settings/cli-tokens/docs');
     expect(screen.getByText(/Each token carries your account permissions/)).toBeInTheDocument();
     expect(await screen.findByText('Active')).toBeInTheDocument();
 
@@ -204,6 +207,7 @@ describe('CLI Tokens page', () => {
     expect(await screen.findByText('创建新 Token')).toBeInTheDocument();
     expect(screen.getByText('现有 Tokens')).toBeInTheDocument();
     expect(screen.getByText('如何使用')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '查看完整文档' })).toHaveAttribute('href', '/settings/cli-tokens/docs');
     expect(screen.getByText(/每个 token 代表你的账户权限/)).toBeInTheDocument();
     expect(await screen.findByText('生效中')).toBeInTheDocument();
   });

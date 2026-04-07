@@ -203,6 +203,7 @@
     "revealTitle": "Save the plain-text token now",
     "revealDescription": "This value will not be shown again. Put it in an environment variable or a secret manager.",
     "copyToken": "Copy token",
+    "docsAction": "Full CLI docs",
     "quickSetupTitle": "Quick setup commands",
     "quickSetupDescription": "The CLI connects to https://www.prompt-minder.com by default.",
     "copyCommand": "Copy commands",

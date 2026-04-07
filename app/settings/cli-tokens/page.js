@@ -32,6 +32,7 @@ const FALLBACK_TRANSLATIONS = {
   revealTitle: '请立即保存明文 Token',
   revealDescription: '此值不会再次显示，请放进环境变量或密钥管理系统',
   copyToken: '复制 Token',
+  docsAction: '查看完整文档',
   quickSetupTitle: '快速配置命令',
   quickSetupDescription: 'CLI 默认连接 https://www.prompt-minder.com',
   copyCommand: '复制命令',
@@ -328,9 +329,18 @@ export default function CliTokensPage() {
 
         {/* Page Header */}
         <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <KeyRound className="h-3.5 w-3.5 text-black/40" />
-            <span className="font-mono text-xs text-black/40 uppercase tracking-widest">{translations.pageBadge}</span>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <KeyRound className="h-3.5 w-3.5 text-black/40" />
+              <span className="font-mono text-xs text-black/40 uppercase tracking-widest">{translations.pageBadge}</span>
+            </div>
+            <Link
+              href="/settings/cli-tokens/docs"
+              className="inline-flex items-center gap-1.5 border border-black px-3 py-1.5 font-mono text-[11px] font-medium uppercase tracking-wide text-black transition-colors hover:bg-black hover:text-white"
+            >
+              {translations.docsAction}
+              <ExternalLink className="h-3 w-3" />
+            </Link>
           </div>
           <div className="flex items-end gap-4">
             <h1 className="text-4xl font-bold tracking-tight text-black leading-none">{translations.pageTitle}</h1>
