@@ -50,7 +50,7 @@ const cardEntrance = (x, y, rotate, delay) => ({
   },
 });
 
-function PartnerModal({ isOpen, onClose }) {
+function CliIntroModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
@@ -70,24 +70,149 @@ function PartnerModal({ isOpen, onClose }) {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ duration: 0.2, ease: [0.25, 0.4, 0.25, 1] }}
+            transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
           >
-            <div className="relative max-h-[90vh] overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div className="relative max-h-[90vh] w-full max-w-5xl overflow-auto rounded-[2rem] border border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(246,248,251,0.98))] shadow-[0_32px_120px_rgba(15,23,42,0.22)]">
               {/* Close button */}
               <button
                 onClick={onClose}
-                className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-gray-600 shadow-md transition-colors hover:bg-white hover:text-gray-900"
+                className="absolute right-5 top-5 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-slate-200/80 bg-white/90 text-slate-500 shadow-[0_10px_30px_rgba(15,23,42,0.10)] transition-all duration-200 hover:-translate-y-0.5 hover:text-slate-900"
               >
                 <X size={18} />
               </button>
-              {/* Image */}
-              <div className="max-h-[80vh] overflow-auto">
-                <img
-                  src="/zsxq-coupon.png"
-                  alt="whyPrompt合伙人计划"
-                  className="h-auto max-w-full"
-                />
+
+              <div className="grid gap-10 p-7 sm:p-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] lg:gap-12 lg:p-12">
+                <div className="min-w-0">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-[0.82rem] font-semibold tracking-[0.01em] text-blue-700">
+                    <Sparkles size={14} />
+                    PromptMinder CLI
+                  </div>
+
+                  <div className="mt-8 max-w-2xl">
+                    <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">
+                      Terminal-native prompt workflow
+                    </p>
+                    <h2 className="mt-4 text-[clamp(2.4rem,5vw,4.4rem)] font-black leading-[0.95] tracking-[-0.05em] text-slate-950">
+                      在终端里
+                      <br />
+                      直接管理你的 prompts
+                    </h2>
+                    <p className="mt-6 max-w-xl text-[1.05rem] leading-8 text-slate-600">
+                      用更少的界面切换完成登录、团队选择、提示词管理与自动化接入。
+                      这不是一个宣传页按钮，而是 PromptMinder 工作流进入终端的直接入口。
+                    </p>
+                  </div>
+
+                  <div className="mt-10 border-t border-slate-200">
+                    <div className="grid gap-0 md:grid-cols-3">
+                      <div className="border-b border-slate-200 py-5 md:border-b-0 md:border-r">
+                        <p className="text-sm font-semibold text-slate-950">Install once</p>
+                        <p className="mt-2 pr-6 text-sm leading-6 text-slate-500">
+                          全局安装后即可在本地脚本、终端会话和 agent 环境中调用。
+                        </p>
+                      </div>
+                      <div className="border-b border-slate-200 py-5 md:border-b-0 md:border-r md:px-6">
+                        <p className="text-sm font-semibold text-slate-950">Team-aware</p>
+                        <p className="mt-2 text-sm leading-6 text-slate-500">
+                          内置 team 作用域，适合多人共享提示词库和协作维护。
+                        </p>
+                      </div>
+                      <div className="py-5 md:pl-6">
+                        <p className="text-sm font-semibold text-slate-950">Agent-ready</p>
+                        <p className="mt-2 text-sm leading-6 text-slate-500">
+                          适合脚本、CI/CD 和 AI agent pipeline，减少手工重复操作。
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <Link
+                      href="/settings/cli-tokens/docs"
+                      className="inline-flex h-12 items-center justify-center rounded-full bg-slate-950 px-6 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-800"
+                    >
+                      查看接入文档
+                    </Link>
+                    <Link
+                      href="https://www.npmjs.com/package/@aircrushin/promptminder-cli"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex h-12 items-center justify-center rounded-full border border-slate-300 bg-white px-6 text-sm font-semibold text-slate-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-400 hover:text-slate-950"
+                    >
+                      NPM 安装入口
+                    </Link>
+                    <Link
+                      href="https://github.com/aircrushin/promptMinder/tree/main/packages/promptminder-cli"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
+                    >
+                      查看源码
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="relative min-w-0 lg:pt-16">
+                  <div className="absolute left-5 top-0 hidden h-16 w-16 rounded-full bg-blue-100/80 blur-2xl lg:block" />
+                  <div className="relative overflow-hidden rounded-[1.75rem] border border-slate-200 bg-[linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,1))] p-4 shadow-[0_20px_60px_rgba(15,23,42,0.12)] sm:p-5">
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
+                          Quick Start
+                        </p>
+                        <p className="mt-1 text-sm font-medium text-slate-600">
+                          从安装到登录，30 秒内完成首个连接。
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
+                        <span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
+                        <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
+                      </div>
+                    </div>
+
+                    <div className="mt-4 rounded-[1.35rem] bg-[#0d1321] p-4 text-left text-[0.95rem] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:p-5">
+                      <p className="text-[0.72rem] font-semibold uppercase tracking-[0.30em] text-slate-500">
+                        shell
+                      </p>
+                      <code className="mt-4 block overflow-x-auto whitespace-nowrap text-[0.98rem] text-sky-300">
+                        npm i -g @aircrushin/promptminder-cli
+                      </code>
+                      <code className="mt-3 block overflow-x-auto whitespace-nowrap text-[0.98rem] text-slate-100">
+                        promptminder auth login --token &lt;YOUR_TOKEN&gt;
+                      </code>
+                      <code className="mt-3 block overflow-x-auto whitespace-nowrap text-[0.98rem] text-slate-400">
+                        promptminder team list
+                      </code>
+                    </div>
+
+                    <div className="mt-4 grid gap-3">
+                      <div className="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-900">Auth</p>
+                          <p className="mt-1 text-sm leading-6 text-slate-500">
+                            使用 token 登录，适合本地环境和自动化执行。
+                          </p>
+                        </div>
+                        <span className="mt-1 text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
+                          step 01
+                        </span>
+                      </div>
+                      <div className="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-900">Scope</p>
+                          <p className="mt-1 text-sm leading-6 text-slate-500">
+                            查看并切换团队，确保命令始终落在正确 workspace。
+                          </p>
+                        </div>
+                        <span className="mt-1 text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
+                          step 02
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -146,9 +271,9 @@ export function HeroSection({ t }) {
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-white">
               <Sparkles size={12} />
             </span>
-            <span>加入 whyPrompt 合伙人计划</span>
+            <span>认识 PromptMinder CLI</span>
             <span className="text-blue-400">·</span>
-            <span className="text-blue-500 transition-colors group-hover:text-blue-700">查看详情 →</span>
+            <span className="text-blue-500 transition-colors group-hover:text-blue-700">终端工作流 →</span>
           </button>
         </motion.div>
 
@@ -459,7 +584,7 @@ export function HeroSection({ t }) {
       </motion.div>
 
       {/* Partner Plan Modal */}
-      <PartnerModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <CliIntroModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </section>
   );
 }
