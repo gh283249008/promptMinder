@@ -4,7 +4,7 @@ export default function Footer({ t }) {
   const translations = t || {
     description: 'Make AI prompt management simpler and more efficient...',
     product: 'Product',
-    roadmap: 'Roadmap',
+    cli: 'CLI',
     privacyPolicy: 'Privacy Policy',
     termsOfUse: 'Terms of Use',
     support: 'Support',
@@ -67,11 +67,10 @@ export default function Footer({ t }) {
                 <ul className="mt-4 space-y-4">
                   <li>
                     <Link
-                      href="https://flo.host/zLaaewm/"
-                      target="_blank"
+                      href="/settings/cli-tokens"
                       className="text-sm text-muted-foreground hover:text-foreground"
                      >
-                      {translations.roadmap}
+                      {translations.cli}
                     </Link>
                   </li>
                   <li>
