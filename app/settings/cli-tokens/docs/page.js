@@ -163,7 +163,7 @@ const FALLBACK_ZH = {
     },
     {
       title: 'HTTP 401',
-      body: 'token 无效、过期或已吊销。回到 tokens 页面重新创建一个，再更新本地环境变量或配置。',
+      body: 'token 无效、过期或已删除。回到 tokens 页面重新创建一个，再更新本地环境变量或配置。',
     },
     {
       title: '团队作用域错误',

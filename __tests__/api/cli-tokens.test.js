@@ -97,7 +97,7 @@ describe('/api/cli-tokens', () => {
     expect(data.error).toBe('Token name is required')
   })
 
-  it('应该吊销当前用户的 token', async () => {
+  it('应该删除当前用户的 token', async () => {
     const returning = jest.fn().mockResolvedValue([{ id: 'token-3' }])
     const where = jest.fn().mockReturnValue({ returning })
     const set = jest.fn().mockReturnValue({ where })
