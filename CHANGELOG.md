@@ -1,3 +1,44 @@
+0.2.1
+===
+
+### New Feature
+
+1. **CLI Token Management** — 添加 CLI 令牌管理功能
+   - `scripts/create-cli-token.js` — 创建 CLI 访问令牌
+   - `scripts/cli-whoami.js` — CLI 用户身份验证
+   - `lib/cli-token-auth.js` — CLI Token 认证中间件
+   - `app/settings/tokens/page.jsx` — Token 管理页面
+   - `app/cli/page.js` — CLI 文档页面
+2. **Landing Page CLI Promo** — 首页添加 CLI 推广模块
+3. **CLI Skill Extraction** — 将 CLI 相关文档提取为独立 Skill
+   - `promptminder-cli-skill/` — 独立 Skill 仓库
+4. **Agent Skills** — Agent 技能系统增强
+
+### Enhancement
+
+1. **国际化** — CLI 相关内容中英文本地化
+2. **Notifications 性能优化** — 减少 `/api/notifications` 调用频率
+3. **Navbar 未读通知轮询优化**
+4. **Tag 同步** — 编辑/删除 Tag 时同步更新关联 Prompts
+5. **Prompt 订阅与工作流** — 实现提示词订阅和自动化工作流
+6. **Onboarding Dialog** — 新用户引导对话框
+7. **Conversation Import** — 对话导入功能
+8. **Public Prompts 分类过滤** — 增强分类筛选和搜索功能
+9. **Agent Coze 集成** — 更新 Agent API 支持 Coze 平台
+
+### Bug Fix
+
+1. **Agent Coze API URL** — 修复 Coze API 端点地址
+2. **Theme 颜色** — 更新主题色以保持品牌一致性
+3. **Tag 管理** — 改进 Tag 批量删除和错误处理
+
+### Docs
+
+1. 更新 README 反映新的团队工作流和数据库迁移说明
+2. CLI Skill 文档优化
+
+---
+
 0.2.0
 ===
 
