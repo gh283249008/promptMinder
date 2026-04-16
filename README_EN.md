@@ -47,7 +47,7 @@ A professional prompt management platform that makes AI prompt management simple
 ### Requirements
 
 - Node.js 20.0 or higher
-- npm or pnpm package manager
+- pnpm 10.x (recommended; project scripts are documented with `pnpm`)
 - Git
 
 ### Local Development
@@ -93,6 +93,15 @@ ZHIPU_API_KEY=your_zhipu_api_key
 GITHUB_ID=your_github_app_id
 GITHUB_SECRET=your_github_app_secret
 
+# Post-login redirects (optional)
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/prompts
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/prompts
+
+# Admin / agent integration (optional)
+ADMIN_EMAIL=admin@example.com
+LANGGRAPH_TOKEN=your_langgraph_token
+PROMPTMINDER_TOKEN=pm_xxx
+
 # Base URL
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
 ```
@@ -108,8 +117,6 @@ pnpm db:migrate
 5. **Start the development server**
 
 ```bash
-npm run dev
-# or use pnpm
 pnpm dev
 ```
 
@@ -129,6 +136,29 @@ Then install and use the CLI:
 npm i -g @aircrushin/promptminder-cli
 promptminder auth login --token pm_xxx
 promptminder team list
+```
+
+### CLI Agent Skill
+
+If you want AI agents like Cursor, Claude Code, or Codex CLI to properly use PromptMinder CLI, install the standalone skill repository first:
+
+```bash
+npx skills add aircrushin/promptminder-cli-skill
+```
+
+Repository: `https://github.com/aircrushin/promptminder-cli-skill`
+
+The CLI still retains `promptminder skills install` as a deprecated compatibility entry for legacy installations. Future updates will focus on the standalone skill repository.
+
+### Common Development Commands
+
+```bash
+pnpm lint              # Run ESLint
+pnpm test              # Run Jest tests
+pnpm test:coverage     # Generate a coverage report
+pnpm analyze           # Analyze build output size
+pnpm performance:test  # Run the performance test script
+pnpm cli:agent -- prompt.list
 ```
 
 ## 📦 Deployment Guide
@@ -187,14 +217,16 @@ pnpm db:migrate    # Run migration files (recommended for production)
 pnpm db:studio     # Open Drizzle Studio for visual database management
 ```
 
-4. **Schema files**
+4. **Schema and migration files**
 
-   Database table definitions are located in `drizzle/schema/`:
-   - `teams.js` — teams, team_members, projects tables
-   - `prompts.js` — prompt_lineages, prompts, tags, favorites tables
-   - `workflow.js` — approval/collaboration tables (change requests, comments, mentions, subscriptions, notifications, audit events)
-   - `public.js` — public_prompts, prompt_likes, prompt_contributions tables
-   - `user.js` — user_feedback, provider_keys tables
+   The project currently uses `drizzle.config.mjs` and the `drizzle/` directory for migration execution, while keeping initialization and supplemental SQL scripts in `sql/`:
+   - `drizzle/migrate.js` — migration entry script
+   - `drizzle/` — Drizzle migration-related files
+   - `sql/teams.sql` — team and membership tables
+   - `sql/prompts.sql` — core prompt and version data
+   - `sql/tags.sql` — tag-related tables
+   - `sql/projects.sql` — project organization tables
+   - `sql/contributions.sql` — community contribution and review flow
 
 ## 🔄 Team Workflow Notes
 
@@ -246,30 +278,26 @@ Language files are located in the `/messages` directory:
 
 ### Project Structure
 
-```
+```text
 promptMinder/
-├── app/                    # Next.js App Router
-│   ├── api/               # API routes
-│   ├── prompts/           # Prompt-related pages
-│   ├── tags/              # Tag management pages
-│   └── ...
-├── components/            # React components
-│   ├── ui/                # Basic UI components
-│   ├── prompt/            # Prompt-related components
-│   └── ...
-├── contexts/              # React Context
-├── hooks/                 # Custom Hooks
-├── lib/                   # Utility libraries and configurations
-├── messages/              # Internationalization files
-├── public/                # Static resources
-└── sql/                   # Database scripts
+├── app/                    # Next.js App Router pages and APIs
+├── components/             # React components (including ui/prompt/team, etc.)
+├── contexts/               # React Context
+├── hooks/                  # Custom Hooks
+├── lib/                    # Utilities, auth, team context, and business logic
+├── messages/               # Localization messages
+├── drizzle/                # Drizzle migration scripts
+├── sql/                    # Initialization / supplemental SQL scripts
+├── packages/               # Subpackages such as the CLI
+├── docs/                   # Project documentation
+└── public/                 # Static assets
 ```
 
 ### Code Standards
 
 - Use ESLint for code checking
 - Follow React Hooks best practices
-- Components use TypeScript (recommended)
+- The project is JavaScript-first and uses `jsconfig.json` for the `@/` path alias
 - CSS uses Tailwind CSS
 
 ### Contribution Guidelines

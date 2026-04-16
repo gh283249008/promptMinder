@@ -47,7 +47,7 @@
 ### 环境要求
 
 - Node.js 20.0 或更高版本
-- npm 或 pnpm 包管理器
+- pnpm 10.x（推荐，项目脚本以 `pnpm` 为主）
 - Git
 
 ### 本地开发
@@ -93,6 +93,15 @@ ZHIPU_API_KEY=your_zhipu_api_key
 GITHUB_ID=your_github_app_id
 GITHUB_SECRET=your_github_app_secret
 
+# 登录后跳转（可选）
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/prompts
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/prompts
+
+# 管理员邮箱 / Agent 调用（按需配置）
+ADMIN_EMAIL=admin@example.com
+LANGGRAPH_TOKEN=your_langgraph_token
+PROMPTMINDER_TOKEN=pm_xxx
+
 # 基础 URL
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
 ```
@@ -108,8 +117,6 @@ pnpm db:migrate
 5. **启动开发服务器**
 
 ```bash
-npm run dev
-# 或者使用 pnpm
 pnpm dev
 ```
 
@@ -142,6 +149,17 @@ npx skills add aircrushin/promptminder-cli-skill
 仓库地址：`https://github.com/aircrushin/promptminder-cli-skill`
 
 CLI 当前仍保留 `promptminder skills install`，但该路径仅作为兼容旧安装方式的 deprecated compatibility 入口，后续以独立 skill 仓库为准。
+
+### 常用开发命令
+
+```bash
+pnpm lint              # 运行 ESLint
+pnpm test              # 运行 Jest 测试
+pnpm test:coverage     # 生成覆盖率报告
+pnpm analyze           # 分析构建产物体积
+pnpm performance:test  # 运行性能测试脚本
+pnpm cli:agent -- prompt.list
+```
 
 ## 📦 部署指南
 
@@ -199,14 +217,16 @@ pnpm db:migrate    # 执行迁移文件（生产环境推荐）
 pnpm db:studio     # 打开 Drizzle Studio 可视化管理数据库
 ```
 
-4. **Schema 文件**
+4. **Schema 与迁移文件**
 
-   数据库表结构定义在 `drizzle/schema/` 目录中：
-   - `teams.js` — teams、team_members、projects 表
-   - `prompts.js` — prompt_lineages、prompts、tags、favorites 表
-   - `workflow.js` — 审批流与协作表（审批单、评论、提及、订阅、通知、审计事件）
-   - `public.js` — public_prompts、prompt_likes、prompt_contributions 表
-   - `user.js` — user_feedback、provider_keys 表
+   项目当前使用 `drizzle.config.mjs` 与 `drizzle/` 目录管理迁移执行逻辑，同时保留 `sql/` 目录中的初始化/补充脚本：
+   - `drizzle/migrate.js` — 迁移入口脚本
+   - `drizzle/` — Drizzle 迁移相关文件
+   - `sql/teams.sql` — 团队与成员相关表
+   - `sql/prompts.sql` — 提示词主表与版本数据
+   - `sql/tags.sql` — 标签相关表
+   - `sql/projects.sql` — 项目组织相关表
+   - `sql/contributions.sql` — 社区贡献与审核流程
 
 ## 🔄 团队审批协作说明
 
@@ -257,30 +277,26 @@ pnpm db:studio     # 打开 Drizzle Studio 可视化管理数据库
 
 ### 项目结构
 
-```
+```text
 promptMinder/
-├── app/                    # Next.js App Router
-│   ├── api/               # API 路由
-│   ├── prompts/           # 提示词相关页面
-│   ├── tags/              # 标签管理页面
-│   └── ...
-├── components/            # React 组件
-│   ├── ui/                # 基础 UI 组件
-│   ├── prompt/            # 提示词相关组件
-│   └── ...
-├── contexts/              # React Context
-├── hooks/                 # 自定义 Hooks
-├── lib/                   # 工具库和配置
-├── messages/              # 国际化文件
-├── public/                # 静态资源
-└── sql/                   # 数据库脚本
+├── app/                    # Next.js App Router 页面与 API
+├── components/             # React 组件（含 ui/prompt/team 等）
+├── contexts/               # React Context
+├── hooks/                  # 自定义 Hooks
+├── lib/                    # 工具库、认证、团队上下文与业务逻辑
+├── messages/               # 国际化文案
+├── drizzle/                # Drizzle 迁移脚本
+├── sql/                    # 初始化/补充 SQL 脚本
+├── packages/               # CLI 等子包
+├── docs/                   # 项目文档
+└── public/                 # 静态资源
 ```
 
 ### 代码规范
 
 - 使用 ESLint 进行代码检查
 - 遵循 React Hooks 最佳实践
-- 组件使用 TypeScript (推荐)
+- 项目以 JavaScript 为主，使用 `jsconfig.json` 提供 `@/` 路径别名
 - CSS 使用 Tailwind CSS
 
 ### 贡献指南
