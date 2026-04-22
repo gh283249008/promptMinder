@@ -23,7 +23,7 @@
 ### 认证 & 权限
 | 技术 | 用途 |
 |------|------|
-| Clerk | 用户认证、登录注册、团队权限 |
+| ADMIN_PASSWORD | 简单密码认证（Vercel 环境变量） |
 
 ### AI 服务
 | 技术 | 用途 |
@@ -72,7 +72,6 @@ promptMinder/
 |------|----------|------|
 | Neon PostgreSQL | https://neon.tech | 免费（0.5GB 存储） |
 | Supabase | https://supabase.com | 免费（1GB 存储） |
-| Clerk | https://clerk.com | 免费（10,000 MAU） |
 | Minimax | https://www.minimaxi.com | 按量计费 |
 
 #### 2. 获取各服务凭证
@@ -80,14 +79,11 @@ promptMinder/
 **Neon（数据库）**
 - 创建 Project → Settings → Connection Strings
 - 复制完整连接字符串，格式：`postgresql://user:pass@host/db?sslmode=require`
+- ⚠️ 注意：Neon 的连接字符串中的 `channel_binding=require` 参数可能导致兼容问题，建议去掉只保留 `sslmode=require`
 
 **Supabase（存储）**
 - 创建 Project → Settings → API
 - 记录三个值：SUPABASE_URL、anon key、service_role key
-
-**Clerk（认证）**
-- 创建 Application
-- 记录 Publishable Key（pk_）和 Secret Key（sk_）
 
 **Minimax（AI）**
 - 获取 API Key 和 API Endpoint
@@ -139,11 +135,10 @@ vercel link
 
 # 4. 添加环境变量
 vercel env add DATABASE_URL production
+vercel env add ADMIN_PASSWORD production
 vercel env add SUPABASE_URL production
 vercel env add SUPABASE_ANON_KEY production
 vercel env add SUPABASE_SERVICE_ROLE_KEY production
-vercel env add NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY production
-vercel env add CLERK_SECRET_KEY production
 vercel env add ANTHROPIC_API_KEY production
 vercel env add ANTHROPIC_BASE_URL production
 
@@ -167,20 +162,18 @@ vercel --prod
 | `SUPABASE_URL` | Supabase 项目 URL | `https://xxxx.supabase.co` |
 | `SUPABASE_ANON_KEY` | Supabase anon 密钥 | `eyJ...` |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service_role 密钥 | `eyJ...` |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk 前端公钥 | `pk_test_...` |
-| `CLERK_SECRET_KEY` | Clerk 后端密钥 | `sk_test_...` |
+| `ADMIN_PASSWORD` | 后台登录密码 | `your-secret-password` |
 | `ANTHROPIC_API_KEY` | Minimax API Key | `sk-cp-...` |
 | `ANTHROPIC_BASE_URL` | Anthropic 兼容端点 | `https://api.minimaxi.com/anthropic/v1` |
 
-### 五、Clerk 回调域名配置
+### 五、密码认证配置
 
-部署完成后需在 Clerk 后台配置允许的域名：
+认证方式为简单的密码认证：
 
-1. https://clerk.com → 你的 Application
-2. User Management → Domains
-3. 添加以下域名：
-   - `https://YOUR_APP.vercel.app`（生产域名）
-   - `http://localhost:3000`（本地开发）
+1. 在 Vercel Dashboard → Settings → Environment Variables 添加：
+   - `ADMIN_PASSWORD` = 你设置的登录密码
+2. 用户访问 `/admin-login` 输入密码即可登录
+3. 登录成功后 cookie 有效期 7 天
 
 ### 六、自动部署配置
 
@@ -225,7 +218,7 @@ pnpm dev
 | `pnpm lint` | ESLint 检查 |
 | `pnpm test` | 运行测试 |
 | `pnpm db:migrate` | 执行数据库迁移 |
-| `pnpm db:push` | 推送 Schema 到数据库 |
+| `pnpm db:push` | 推送 Schema 到数据库（首次部署后必需） |
 | `pnpm db:studio` | 打开 Drizzle Studio |
 
 ---
@@ -241,7 +234,7 @@ Next.js App (API Routes)
     ↓
 Neon PostgreSQL (数据存储)
 Supabase (文件存储)
-Clerk (用户认证)
+ADMIN_PASSWORD (密码认证)
 Minimax API (AI 生成)
     ↓
 返回用户
@@ -252,9 +245,9 @@ Minimax API (AI 生成)
 ## 注意事项
 
 1. **API Key 安全**：所有 Key 只放在 Vercel 环境变量中，不要提交到 Git
-2. **Clerk 域名**：上线前必须在 Clerk 后台添加生产域名，否则认证失效
-3. **数据库迁移**：首次部署后需执行 `pnpm db:migrate` 初始化数据库表
-4. **Supabase Storage**：需在 Supabase 后台创建 `prompts` bucket 并设为 Public
+2. **数据库迁移**：首次部署后需执行 `pnpm db:push` 初始化数据库表（参考下方故障排除）
+3. **Supabase Storage**：需在 Supabase 后台创建 `prompts` bucket 并设为 Public
+4. **Vercel 域名变更**：每次重新部署会换 URL，导致之前设置的 cookie 失效，建议绑定自定义域名
 
 ---
 
@@ -264,3 +257,6 @@ Minimax API (AI 生成)
 - [x] Vercel 构建失败：conversation-import.js 语法错误，多余的 try/catch 代码块
 - [x] GitHub Fork 权限：PAT 需要勾选 `repo` scope 才能 Fork 仓库
 - [x] Vercel CLI 非交互：使用 `echo "" | vercel link --yes` 跳过交互提示
+- [x] Clerk 免费版限制：Development 实例不支持外部域名，只能本地开发；Production 需要付费。改用 ADMIN_PASSWORD 简单认证
+- [x] 数据库为空：首次部署后 Neon 数据库没有任何表，需要本地运行 `npx drizzle-kit push` 同步 schema
+- [x] fetch credentials：所有客户端 fetch 请求需要 `credentials: 'include'` 才能发送认证 cookie
