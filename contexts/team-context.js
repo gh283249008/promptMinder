@@ -23,6 +23,7 @@ export function TeamProvider({ children }) {
     try {
       const response = await fetch('/api/teams', {
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         cache: 'no-store'
       })
       if (!response.ok) {
@@ -68,6 +69,7 @@ export function TeamProvider({ children }) {
     const response = await fetch(`/api/teams/${teamId}/members/me`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ status: 'active' })
     })
     if (!response.ok) {
@@ -80,7 +82,8 @@ export function TeamProvider({ children }) {
   const leaveTeam = useCallback(async (teamId) => {
     const response = await fetch(`/api/teams/${teamId}/members/me`, {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include'
     })
     if (!response.ok) {
       const payload = await response.json().catch(() => ({}))
@@ -92,7 +95,8 @@ export function TeamProvider({ children }) {
   const deleteTeam = useCallback(async (teamId) => {
     const response = await fetch(`/api/teams/${teamId}`, {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include'
     })
     if (!response.ok) {
       const payload = await response.json().catch(() => ({}))
