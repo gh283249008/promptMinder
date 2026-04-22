@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
+import Anthropic from '@anthropic-ai/sdk';
 
-const ZHIPU_API_URL = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
+const ANTHROPIC_API_URL = 'https://api.minimaxi.com/anthropic/v1';
 
 const SYSTEM_PROMPT = `你是一个AI提示词元数据生成助手。根据用户提供的提示词内容，生成一个简洁的标题和简明的描述。
 只输出严格的JSON，不包含任何其他内容：
@@ -15,37 +16,27 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Content is required' }, { status: 400 });
     }
 
-    const apiKey = process.env.ZHIPUAI_API_KEY || process.env.ZHIPU_API_KEY;
+    const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ error: 'API key not configured' }, { status: 500 });
     }
 
-    const res = await fetch(ZHIPU_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'glm-4.7-flash',
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: `提示词内容：\n${content.slice(0, 2000)}` },
-        ],
-        temperature: 0.3,
-        max_tokens: 200,
-        thinking: { type: 'disabled' },
-      }),
+    const anthropic = new Anthropic({
+      apiKey,
+      baseURL: ANTHROPIC_API_URL,
     });
 
-    if (!res.ok) {
-      const err = await res.text();
-      console.error('ZhipuAI meta error:', err);
-      return NextResponse.json({ error: 'Upstream API error' }, { status: 502 });
-    }
+    const response = await anthropic.messages.create({
+      model: 'claude-3-5-haiku-20241022',
+      max_tokens: 200,
+      system: SYSTEM_PROMPT,
+      messages: [
+        { role: 'user', content: `提示词内容：\n${content.slice(0, 2000)}` },
+      ],
+      temperature: 0.3,
+    });
 
-    const data = await res.json();
-    const text = data?.choices?.[0]?.message?.content ?? '';
+    const text = response.content?.[0]?.text ?? '';
 
     const jsonMatch = text.match(/\{[\s\S]*?\}/);
     if (!jsonMatch) {

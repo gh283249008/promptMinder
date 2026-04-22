@@ -108,15 +108,15 @@ export default function ChatTest({ prompt, variableValues = {}, hasVariables = f
   // Provider-related state
   const [selectedProvider, setSelectedProvider] = useState(() => {
     const saved = getSavedSettings();
-    return saved?.provider || 'zhipu';
+    return saved?.provider || 'anthropic';
   });
   const [selectedModel, setSelectedModel] = useState(() => {
     const saved = getSavedSettings();
-    return saved?.model || 'glm-4-flash';
+    return saved?.model || 'claude-3-5-haiku-20241022';
   });
   const [baseURL, setBaseURL] = useState(() => {
     const saved = getSavedSettings();
-    return saved?.baseURL || 'https://open.bigmodel.cn/api/paas/v4';
+    return saved?.baseURL || 'https://api.minimaxi.com/anthropic/v1';
   });
   const [apiKey, setApiKey] = useState(() => {
     const saved = getSavedSettings();

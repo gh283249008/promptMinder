@@ -1,4 +1,6 @@
-const ZHIPU_API_URL = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
+import Anthropic from '@anthropic-ai/sdk';
+
+const ANTHROPIC_API_URL = 'https://api.minimaxi.com/anthropic/v1';
 
 const AGENT_SYSTEM_PROMPT = `# Role: 高级Prompt工程专家
 
@@ -72,45 +74,49 @@ export async function POST(req) {
   try {
     const { text } = await req.json();
 
-    const apiKey = process.env.ZHIPUAI_API_KEY || process.env.ZHIPU_API_KEY;
+    const apiKey = process.env.ANTHROPIC_API_KEY;
 
     if (!apiKey) {
       return new Response(
-        JSON.stringify({ error: "ZHIPUAI_API_KEY or ZHIPU_API_KEY not configured" }),
+        JSON.stringify({ error: "ANTHROPIC_API_KEY not configured" }),
         { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    const res = await fetch(ZHIPU_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'glm-4.7-flash',
-        messages: [
-          { role: 'system', content: AGENT_SYSTEM_PROMPT },
-          { role: 'user', content: `请优化以下Prompt并生成结构化版本：\n\n"${text}"` },
-        ],
-        temperature: 0.7,
-        stream: true,
-        thinking: { type: 'disabled' },
-      }),
+    const anthropic = new Anthropic({
+      apiKey,
+      baseURL: ANTHROPIC_API_URL,
     });
 
-    if (!res.ok) {
-      const err = await res.text();
-      console.error('ZhipuAI generate error:', err);
-      return new Response(
-        JSON.stringify({ error: 'Upstream API error' }),
-        { status: 502, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
+    const stream = await anthropic.messages.stream({
+      model: 'claude-3-5-haiku-20241022',
+      max_tokens: 4096,
+      system: AGENT_SYSTEM_PROMPT,
+      messages: [
+        { role: 'user', content: `请优化以下Prompt并生成结构化版本：\n\n"${text}"` },
+      ],
+      temperature: 0.7,
+    });
 
-    return new Response(res.body, {
+    const encoder = new TextEncoder();
+    const outputStream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const event of stream) {
+            if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+              controller.enqueue(encoder.encode(event.delta.text));
+            }
+          }
+          controller.close();
+        } catch (err) {
+          controller.error(err);
+        }
+      },
+    });
+
+    return new Response(outputStream, {
       headers: {
-        'Content-Type': 'text/event-stream',
+        'Content-Type': 'text/plain; charset=utf-8',
         'Cache-Control': 'no-cache',
         Connection: 'keep-alive',
       },

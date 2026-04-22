@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-const DEFAULT_API_KEY = process.env.ZHIPU_API_KEY;
-const DEFAULT_BASE_URL = 'https://open.bigmodel.cn/api/paas/v4';
+const DEFAULT_API_KEY = process.env.ANTHROPIC_API_KEY;
+const DEFAULT_BASE_URL = process.env.ANTHROPIC_BASE_URL || 'https://api.minimaxi.com/anthropic/v1';
 export async function POST(request) {
   try {
     const body = await request.json();
