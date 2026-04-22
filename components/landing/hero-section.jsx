@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth } from "@/lib/clerk-shim";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { X, Sparkles } from "lucide-react";

@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth } from "@/lib/clerk-shim";
 import { ParticleButton } from "../ui/particle-button";
 import { SparklesIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 

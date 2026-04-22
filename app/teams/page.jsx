@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTeam } from "@/contexts/team-context";
-import { useUser } from "@clerk/nextjs";
+import { useUser } from "@/lib/clerk-shim";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import {

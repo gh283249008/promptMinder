@@ -3,7 +3,7 @@ import { db } from '@/lib/db.js'
 import { TeamService, TEAM_STATUSES } from '@/lib/team-service.js'
 import { handleApiError } from '@/lib/handle-api-error.js'
 import { requireUserId } from '@/lib/auth.js'
-import { clerkClient } from '@clerk/nextjs/server'
+
 
 async function resolveParams(paramsPromise, actorUserId = null) {
   const { teamId, userId: rawUserId } = await paramsPromise

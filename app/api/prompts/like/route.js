@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db.js'
-import { auth } from '@clerk/nextjs/server'
+
 import { eq, and, sql } from 'drizzle-orm'
 import { publicPrompts, promptLikes } from '@/drizzle/schema/index.js'
 
@@ -12,7 +12,7 @@ export async function POST(request) {
             return NextResponse.json({ error: 'Prompt ID is required' }, { status: 400 })
         }
 
-        const { userId } = await auth()
+        const userId = await requireUserId(request)
         if (!userId) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
@@ -59,7 +59,7 @@ export async function DELETE(request) {
             return NextResponse.json({ error: 'Prompt ID is required' }, { status: 400 })
         }
 
-        const { userId } = await auth()
+        const userId = await requireUserId(request)
         if (!userId) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }

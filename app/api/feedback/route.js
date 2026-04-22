@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db.js'
 import { handleApiError } from '@/lib/handle-api-error.js'
-import { auth } from '@clerk/nextjs/server'
+// auth handled by lib/auth.js
 import { eq, desc, count as countFn } from 'drizzle-orm'
 import { userFeedback } from '@/drizzle/schema/index.js'
 import { toSnakeCase } from '@/lib/case-utils.js'

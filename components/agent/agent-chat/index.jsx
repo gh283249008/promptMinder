@@ -2,7 +2,7 @@
 
 import { useChat } from '@ai-sdk/react';
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useUser } from '@/lib/clerk-shim';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';

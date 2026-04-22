@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { SignInButton, useUser } from '@clerk/nextjs'
+import { SignInButton, useUser } from '@/lib/clerk-shim'
 import { Terminal, Copy, Plus, KeyRound, Trash2, ExternalLink, Check } from 'lucide-react'
 import {
   AlertDialog,

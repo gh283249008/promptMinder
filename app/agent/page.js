@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useEffect, useState, useCallback } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useUser } from '@/lib/clerk-shim';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { Menu, X } from 'lucide-react';

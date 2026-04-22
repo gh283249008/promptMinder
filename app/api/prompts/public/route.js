@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db.js'
-import { auth } from '@clerk/nextjs/server'
+
 import { eq, and, desc, asc, inArray, count as countFn } from 'drizzle-orm'
 import { publicPrompts, promptLikes } from '@/drizzle/schema/index.js'
 
@@ -14,7 +14,7 @@ export async function GET(request) {
         const sortBy = searchParams.get('sortBy') || 'created_at'
         const sortOrder = searchParams.get('sortOrder') || 'desc'
 
-        const { userId } = await auth()
+        const userId = await requireUserId(request)
 
         // Build where conditions
         const conditions = [eq(publicPrompts.language, language)]

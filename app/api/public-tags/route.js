@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db.js'
-import { auth } from '@clerk/nextjs/server'
+// auth handled by lib/auth.js
 import { eq, and, asc } from 'drizzle-orm'
 import { publicTags } from '@/drizzle/schema/index.js'
 import { toSnakeCase } from '@/lib/case-utils.js'

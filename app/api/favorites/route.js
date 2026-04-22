@@ -3,7 +3,7 @@ import { requireUserId } from '@/lib/auth.js'
 import { db } from '@/lib/db.js'
 import { handleApiError } from '@/lib/handle-api-error.js'
 import { resolveTeamContext } from '@/lib/team-request.js'
-import { clerkClient } from '@clerk/nextjs/server'
+
 import { eq, or, and, desc, inArray, count as countFn } from 'drizzle-orm'
 import { favorites, prompts } from '@/drizzle/schema/index.js'
 import { toSnakeCase } from '@/lib/case-utils.js'
