@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db.js'
+import { requireUserId } from '@/lib/auth.js'
 
 import { eq, and, desc, asc, inArray, count as countFn } from 'drizzle-orm'
 import { publicPrompts, promptLikes } from '@/drizzle/schema/index.js'
@@ -14,7 +15,13 @@ export async function GET(request) {
         const sortBy = searchParams.get('sortBy') || 'created_at'
         const sortOrder = searchParams.get('sortOrder') || 'desc'
 
-        const userId = await requireUserId(request)
+        // Public endpoint: userId is optional (only needed for like status)
+        let userId = null
+        try {
+            userId = await requireUserId(request)
+        } catch {
+            // Not authenticated - that's fine for public prompts
+        }
 
         // Build where conditions
         const conditions = [eq(publicPrompts.language, language)]
